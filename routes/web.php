@@ -10,4 +10,6 @@ Route::group(['middleware' => ['auth']], function() {
   Route::get('/users/{user}','UserController@index')->name('users');
   Route::get('/users/{user}/follow','UserController@follow')->name('users.follow');
   Route::get('/users/{user}/unfollow','UserController@unfollow')->name('users.unfollow');
+
+  Route::post('/add_link','LinkController@create');
 });

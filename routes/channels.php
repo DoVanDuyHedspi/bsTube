@@ -18,3 +18,7 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 Broadcast::channel('new-post', function ($user) {
     return Auth::check();
 });
+
+Broadcast::channel('add-link', function ($user) {
+    return Auth::check();
+});

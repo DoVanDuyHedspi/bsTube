@@ -15,7 +15,7 @@ class PostController extends Controller
             'posts' => $posts,
         ]);
     }
-
+    
     public function create(Request $request, Post $post) {
         $createdPost = $request->user()->posts()->create([
             'body' => $request->body
