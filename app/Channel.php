@@ -10,7 +10,7 @@ class Channel extends Model
 
     protected $primaryKey = 'name';
 
-    protected $incrementing = false;
+    public $incrementing = false;
 
     protected $casts = [
         'link' => 'array',

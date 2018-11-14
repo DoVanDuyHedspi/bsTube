@@ -1,0 +1,63 @@
+#wrap .container .login-1 {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+#wrap .container .login-2 {
+  padding: 5%;
+  border-bottom:1px solid rgba(255,255,255,0.15);
+}
+#wrap .bg-mae-1 {
+  height: 650px;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+  padding-top: 90px;
+  color: white;
+}
+#wrap .bg-mae-2 {
+  height: 720px;
+  width: 100%;
+  background-color: rgba(0,0,0,0.7);
+  padding-top: 70px;
+  color: white;
+}
+#con-left {
+  padding-left: 10%;
+}
+#wrap .login-form {
+  background-color: rgba(0,0,0,0.5);
+  padding: 0;
+  width: 300px;
+}
+#wrap .forgot-pass {
+  color: #f03c0b;
+  float: right;
+}
+#wrap .sign-up {
+  color: white;
+  background-color: #f03c0b;
+  border: 0;
+  margin:20px 0;
+}
+#wrap .sign-up:hover {
+  opacity: 0.7;
+}
+#wrap .login-fb {
+  color: white;
+  background-color: #3b5998;
+  border: 0;
+  margin:20px 0;
+}
+#wrap .login-fb:hover {
+  opacity: 0.7;
+}
+#wrap .login-gm {
+  color: white;
+  background-color: #dd4b39;
+  border: 0;
+  margin-bottom: 30px;
+}
+#wrap .login-gm:hover {
+  opacity: 0.7;
+}

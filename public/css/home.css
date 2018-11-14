@@ -1,0 +1,12 @@
+#mainpage {
+  padding-top:60px;
+}
+table td {
+  max-width:200px;
+  word-wrap:break-word;
+}
+#wrap .bg-mae {
+  height: 650px;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+}

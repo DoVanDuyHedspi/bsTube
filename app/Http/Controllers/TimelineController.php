@@ -10,6 +10,6 @@ class TimelineController extends Controller
     public function index(){
       $following = Auth::user()->following;
       $followers = Auth::user()->followers;
-      return view('home', compact('following', 'followers'));
+      return view('timeline', compact('following', 'followers'));
     }
 }
