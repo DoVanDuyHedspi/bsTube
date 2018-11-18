@@ -40,7 +40,7 @@
     </script>
 </head>
 <body>
-    <div id="wrap" style="background-image: url(images/mu.jpg); background-size: 100% 92%;">
+    <div id="wrap" style="background-image: url({{asset('images/ab.jpg')}}); background-size: 100% 92%;">
         <div class="bg-mae">
             <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-header">

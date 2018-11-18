@@ -16,4 +16,7 @@ class Channel extends Model
         'link' => 'array',
     ];
 
+    public function user() {
+        return $this->belongsTo('App\User');
+    }
 }

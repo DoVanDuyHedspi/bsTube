@@ -21,13 +21,15 @@
                   <td>{{ $channel->numbers_of_member }}</td>
                   <td>
                   @php
-                    $idVideo = $channel->link[0];
-                    $video = Youtube::getVideoInfo($idVideo);
-                    if($video) {
-                      echo($video->snippet->title);
-                    }else {
-                      echo "Dont know";
-                    }
+                    if($channel->link != null) {
+                      $idVideo = $channel->link[0];
+                      $video = Youtube::getVideoInfo($idVideo);
+                      if($video) {
+                        echo($video->snippet->title);
+                      }else {
+                        echo "Dont know";
+                      }
+                    }                 
                   @endphp
                   </td>
                 </tr>
@@ -38,7 +40,7 @@
         <div class="col-lg-3 col-md-3">
           <h3>Enter Channel</h3>
           <input class="form-control" id="channelname" type="text" placeholder="Channel Name">
-          <p class="text-muted">New channels can be registered from the <a href="#">My Channels</a> page.</p>
+          <p class="text-muted">New channels can be registered from the <a href="{{ route('my_channels')}}">My Channels</a> page.</p>
         </div>
       </div>
     </section>
