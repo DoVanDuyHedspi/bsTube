@@ -29,6 +29,10 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function channels() {
+        return $this->hasMany('App\Channel', 'channel_master_id');
+    }
+
     public function getAvatar() {
         return 'https://gravatar.com/avatar/'.md5($this->email).'/?s=45&d=mm';
     }

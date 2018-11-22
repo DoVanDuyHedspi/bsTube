@@ -1,33 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-
-    <div class="row">
-        <div class="col-md-2">
-            <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->username}}">
-            <hr>
-            <h2 class="text-primary">{{ Auth::user()->username}}</h2>
-            <div class="col-md-2">
-                <hr>
-                <h2>Following</h2>
-
-                @foreach($following as $user)
-                    <p><a href="{{ route('users', $user) }}" class="btn btn-primary">{{ $user->username }}</a></p>
-                @endforeach
-
-                <hr>
-                <h2>Followers</h2>
-
-                @foreach($followers as $user)
-                    <p><a href="{{ route('users', $user) }}" class="btn btn-success">{{ $user->username }}</a></p>
-                @endforeach
-            </div>
-            
+    <section id="mainpage">
+      <div class="container">
+        <div class="col-lg-9 col-md-9">
+          <h3>Public Channels</h3>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Channel</th>
+                <th># Connected</th>
+                <th>Now Playing</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($channels as $channel)
+                <tr>
+                  <td><a href="{{ route('channels', $channel->name) }}">{{ $channel->name }}</a>
+                  </td>
+                  <td>{{ $channel->numbers_of_member }}</td>
+                  <td>
+                  @php
+                    if($channel->link != null) {
+                      $idVideo = $channel->link[0];
+                      $video = Youtube::getVideoInfo($idVideo);
+                      if($video) {
+                        echo($video->snippet->title);
+                      }else {
+                        echo "Dont know";
+                      }
+                    }                 
+                  @endphp
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
         </div>
-        <div class="col-md-10">
-            <div id="root"></div>
+        <div class="col-lg-3 col-md-3">
+          <h3>Enter Channel</h3>
+          <input class="form-control" id="channelname" type="text" placeholder="Channel Name">
+          <p class="text-muted">New channels can be registered from the <a href="{{ route('my_channels')}}">My Channels</a> page.</p>
         </div>
-    </div>
-</div>
+      </div>
+    </section>
 @endsection

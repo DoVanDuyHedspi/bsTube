@@ -160,6 +160,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*
+         * Youtube Api
+         */
+        Alaouy\Youtube\YoutubeServiceProvider::class,
+
     ],
 
     /*
