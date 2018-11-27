@@ -45962,7 +45962,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 if (document.getElementById('root')) {
-    __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__App__["a" /* default */], null), document.getElementById('root'));
+    var channel_name = document.getElementById('channel_name').value;
+    __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__App__["a" /* default */], { name: channel_name }), document.getElementById('root'));
 }
 
 /***/ }),
@@ -66950,25 +66951,25 @@ var App = function (_Component) {
         var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
         _this.state = {
-            body: '',
-            posts: [],
+            content: '',
+            comments: [],
             loading: false
         };
         _this.handleSubmit = _this.handleSubmit.bind(_this);
         _this.handleChange = _this.handleChange.bind(_this);
-        _this.renderPosts = _this.renderPosts.bind(_this);
+        _this.renderComments = _this.renderComments.bind(_this);
         return _this;
     }
 
     _createClass(App, [{
-        key: 'getPosts',
-        value: function getPosts() {
+        key: 'getComments',
+        value: function getComments() {
             var _this2 = this;
 
             this.setState({ loading: true });
-            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.get('/posts').then(function (response) {
+            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.get('/comments', { params: { channel_name: this.props.name } }).then(function (response) {
                 return _this2.setState({
-                    posts: [].concat(_toConsumableArray(response.data.posts)),
+                    comments: [].concat(_toConsumableArray(response.data.comments)),
                     loading: false
                 });
             });
@@ -66976,96 +66977,77 @@ var App = function (_Component) {
     }, {
         key: 'componentWillMount',
         value: function componentWillMount() {
-            this.getPosts();
+            this.getComments();
         }
     }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this3 = this;
 
-            Echo.private('new-post').listen('PostCreated', function (e) {
-                console.log(window.Laravel.user.following.includes(e.post.user_id));
-                // this.setState({posts: [e.post,...this.state.posts]})
-                if (window.Laravel.user.following.includes(e.post.user_id)) {
-                    _this3.setState({ posts: [e.post].concat(_toConsumableArray(_this3.state.posts)) });
-                }
+            Echo.join('channel.' + this.props.name).here(function () {
+                console.log('duy');
+            }).listen('CommentCreated', function (e) {
+                console.log(e);
+                _this3.setState({ comments: [].concat(_toConsumableArray(_this3.state.comments), [e.comment]) });
             });
-            // this.interval = setInterval(()=>this.getPosts(), 10000)
         }
     }, {
         key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-            // clearInterval(this.interval)
-        }
+        value: function componentWillUnmount() {}
     }, {
         key: 'handleSubmit',
         value: function handleSubmit(e) {
             var _this4 = this;
 
             e.preventDefault();
-            // this.postData();
-            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.post('/posts', {
-                body: this.state.body
+            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.post('/comments', {
+                content: this.state.content,
+                channel_name: this.props.name
             }).then(function (response) {
-                // console.log(response)
                 _this4.setState({
-                    posts: [].concat(_toConsumableArray(_this4.state.posts), [response.data]),
-                    body: ''
+                    comments: [].concat(_toConsumableArray(_this4.state.comments), [response.data]),
+                    content: ''
                 });
             });
             this.setState({
-                body: ''
+                content: ''
             });
         }
     }, {
         key: 'postData',
         value: function postData() {
-            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.post('/posts', {
-                body: this.state.body
+            __WEBPACK_IMPORTED_MODULE_1_axios___default.a.post('/comments', {
+                content: this.state.content
             });
         }
     }, {
         key: 'handleChange',
         value: function handleChange(e) {
             this.setState({
-                body: e.target.value
+                content: e.target.value
             });
         }
     }, {
-        key: 'renderPosts',
-        value: function renderPosts() {
-            return this.state.posts.map(function (post) {
+        key: 'renderComments',
+        value: function renderComments() {
+            return this.state.comments.map(function (comment) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
-                    { key: post.id, className: 'media' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'div',
-                        { className: 'media-left' },
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('img', { src: post.user.avatar, className: 'media-object mr-2' })
-                    ),
+                    { key: comment.id, className: 'media' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'media-left' }),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
                         { className: 'media-body' },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'div',
                             { className: 'user' },
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'a',
-                                { href: 'users/' + post.user.username },
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    'b',
-                                    null,
-                                    post.user.username
-                                )
-                            ),
-                            ' ',
                             '- ',
-                            post.humanCreatedAt
+                            comment.humanCreatedAt
                         ),
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'p',
                             null,
-                            post.body
+                            comment.content
                         )
                     )
                 );
@@ -67079,10 +67061,28 @@ var App = function (_Component) {
                 { className: 'container' },
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
-                    { className: 'row justify-content-center' },
+                    { className: 'row justify-content-center col-md-6' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'col-md-6' },
+                        { className: 'col-md-12' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'div',
+                            { className: 'card' },
+                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                'div',
+                                { className: 'card-header' },
+                                'Recent tweets '
+                            ),
+                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                'div',
+                                { className: 'card-body' },
+                                !this.state.loading ? this.renderComments() : 'Loading'
+                            )
+                        )
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'col-md-12' },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'div',
                             { className: 'card' },
@@ -67102,7 +67102,7 @@ var App = function (_Component) {
                                         { className: 'form-group' },
                                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('textarea', {
                                             onChange: this.handleChange,
-                                            value: this.state.body,
+                                            value: this.state.content,
                                             className: 'form-control',
                                             row: '5',
                                             maxLength: '140',
@@ -67111,24 +67111,6 @@ var App = function (_Component) {
                                     ),
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { type: 'submit', value: 'Post', className: 'form-control' })
                                 )
-                            )
-                        )
-                    ),
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'div',
-                        { className: 'col-md-6' },
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            { className: 'card' },
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'div',
-                                { className: 'card-header' },
-                                'Recent tweets'
-                            ),
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'div',
-                                { className: 'card-body' },
-                                !this.state.loading ? this.renderPosts() : 'Loading'
                             )
                         )
                     )
