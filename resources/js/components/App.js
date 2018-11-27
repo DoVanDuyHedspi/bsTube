@@ -6,92 +6,90 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            body: '',
-            posts: [],
+            content: '',
+            comments: [],
             loading: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.renderPosts = this.renderPosts.bind(this); 
+        this.renderComments = this.renderComments.bind(this); 
     }
 
-    getPosts() {
-        this.setState({loading:true});
-        axios.get('/posts').then((
+    getComments() {
+        this.setState({loading:true});    
+        axios.get('/comments', {params: {channel_name: this.props.name}}).then((
             response
         ) => 
             this.setState({
-                posts: [...response.data.posts],
+                comments: [...response.data.comments],
                 loading: false
             })
         );
     }
 
     componentWillMount() {
-        this.getPosts();
+        this.getComments();
     }
 
     componentDidMount() {
-        Echo.private('new-post').listen('PostCreated', (e) => {
-            console.log(window.Laravel.user.following.includes(e.post.user_id));
-            // this.setState({posts: [e.post,...this.state.posts]})
-            if (window.Laravel.user.following.includes(e.post.user_id)) {
-                this.setState({posts: [e.post,...this.state.posts]})
-            }
-        })
-        // this.interval = setInterval(()=>this.getPosts(), 10000)
+        Echo.join(`channel.${this.props.name}`)
+            .here(function(){
+                console.log(`duy`)
+            })
+            .listen('CommentCreated', (e) => {
+                console.log(e);
+                this.setState({comments: [...this.state.comments, e.comment]})
+            })
     }
 
     componentWillUnmount() {
-        // clearInterval(this.interval)
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        // this.postData();
         axios
-            .post('/posts', {
-                body: this.state.body
+            .post('/comments', {
+                content: this.state.content,
+                channel_name: this.props.name
             })
             .then(response => {
-                // console.log(response)
                 this.setState({
-                    posts: [...this.state.posts, response.data],
-                    body: ''
+                    comments: [...this.state.comments, response.data],
+                    content: ''                    
                 })
-            });
-        this.setState({
-            body: ''
+            });                                 
+        this.setState({                       
+            content: ''
         });
-        
+                                            
     }
 
     postData() {
-        axios.post('/posts', {
-            body: this.state.body
+        axios.post('/comments', {
+            content: this.state.content
         });
     }
-
+                                           
     handleChange(e) {
         this.setState({
-            body: e.target.value
+            content: e.target.value
         })
     }
 
-    renderPosts() {
-        return this.state.posts.map(post => (
-            <div key={post.id} className="media">
+    renderComments() {
+        return this.state.comments.map(comment => (
+            <div key={comment.id} className="media">
                 <div className="media-left">
-                    <img src={post.user.avatar} className="media-object mr-2" />
+                    {/* <img src={comment.user.avatar} className="media-object mr-2" /> */}
                 </div>
                 <div className="media-body">
                     <div className="user">
-                        <a href={`users/${post.user.username}`}>
-                            <b>{post.user.username}</b>
-                        </a>{' '}
-                        - {post.humanCreatedAt}
+                        {/* <a href={`users/${comment.user.username}`}> */}
+                            {/* <b>{comment.user.username}</b> */}
+                        {/* </a>{' '} */}
+                        - {comment.humanCreatedAt}
                     </div>         
-                    <p>{post.body}</p>
+                    <p>{comment.content}</p>
                 </div>                                                          
             </div>))
         
@@ -100,8 +98,17 @@ class App extends Component {
     render() {
         return (
             <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6">
+                <div className="row justify-content-center col-md-6">
+                    <div className="col-md-12">
+                        <div className="card">
+                            <div className="card-header">Recent tweets </div>
+                            
+                            <div className="card-body">
+                            {!this.state.loading ? this.renderComments() : 'Loading'}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-12">
                         <div className="card">
                             <div className="card-header">Tweet something...</div>
 
@@ -110,7 +117,7 @@ class App extends Component {
                                     <div className="form-group">
                                         <textarea
                                             onChange={this.handleChange}
-                                            value={this.state.body}
+                                            value={this.state.content}
                                             className="form-control"
                                             row="5"
                                             maxLength="140"
@@ -121,17 +128,7 @@ class App extends Component {
                                 </form>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-header">Recent tweets</div>
-                            
-                            <div className="card-body">
-                            {!this.state.loading ? this.renderPosts() : 'Loading'}
-                            </div>
-                        </div>
-                    </div>
+                    </div>                
                 </div>
             </div>
         );
