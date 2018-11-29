@@ -12,6 +12,7 @@ class App extends Component {
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
         this.renderComments = this.renderComments.bind(this); 
     }
 
@@ -19,11 +20,14 @@ class App extends Component {
         this.setState({loading:true});    
         axios.get('/comments', {params: {channel_name: this.props.name}}).then((
             response
-        ) => 
-            this.setState({
-                comments: [...response.data.comments],
-                loading: false
-            })
+        ) => {
+                this.setState({
+                    comments: [...response.data.comments],
+                    loading: false
+                });
+                console.log(response)
+            }
+            
         );
     }
 
@@ -71,64 +75,66 @@ class App extends Component {
     }
                                            
     handleChange(e) {
+        
         this.setState({
             content: e.target.value
         })
     }
 
+    handleKeyPress(e) {
+        console.log(e)
+        if(e.key == 'Enter') {
+            this.handleSubmit(e)
+        }
+    }
+
     renderComments() {
         return this.state.comments.map(comment => (
             <div key={comment.id} className="media">
-                <div className="media-left">
-                    {/* <img src={comment.user.avatar} className="media-object mr-2" /> */}
-                </div>
-                <div className="media-body">
-                    <div className="user">
-                        {/* <a href={`users/${comment.user.username}`}> */}
-                            {/* <b>{comment.user.username}</b> */}
-                        {/* </a>{' '} */}
-                        - {comment.humanCreatedAt}
-                    </div>         
-                    <p>{comment.content}</p>
-                </div>                                                          
+                <div style={{color: 'green'}}>
+                    <span>[{comment.humanCreatedAt}] </span><span>{comment.user.username}: {comment.content}</span>
+                </div>                                                           
             </div>))
         
     }
 
     render() {
         return (
-            <div className="container">
-                <div className="row justify-content-center col-md-6">
-                    <div className="col-md-12">
-                        <div className="card">
-                            <div className="card-header">Recent tweets </div>
-                            
-                            <div className="card-body">
-                            {!this.state.loading ? this.renderComments() : 'Loading'}
-                            </div>
+            <div className="">
+                <div className="col-lg-5 col-md-5" id="chatwrap">
+                    <div id="chatheader">
+                        <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
+                        <span className="pointer" id="usercount">4 connected users</span>
+                    </div>
+                    <div id="userlist" style={{height: 388 + 'px'}}>
+                        <div className="userlist_item userlist_afk">
+                            <span className="glyphicon glyphicon-time"></span>
+                            <span className="userlist_op" style={{fontStyle: 'italic'}}>AlbanianAndy</span>
                         </div>
                     </div>
-                    <div className="col-md-12">
-                        <div className="card">
-                            <div className="card-header">Tweet something...</div>
-
-                            <div className="card-body">
-                                <form onSubmit={this.handleSubmit}>
-                                    <div className="form-group">
-                                        <textarea
-                                            onChange={this.handleChange}
-                                            value={this.state.content}
-                                            className="form-control"
-                                            row="5"
-                                            maxLength="140"
-                                            placeholder="What up?"
-                                            required />
-                                    </div>
-                                    <input type="submit" value="Post" className="form-control"/>
-                                </form>
+                    <div className="linewrap" id="messagebuffer" style={{height: 388 + 'px'}}>
+                        <div className="server-msg-reconnect">Connected</div>
+                        {!this.state.loading ? this.renderComments() : 'Loading'}
+                    </div>
+                    <div className="input-group" id="guestlogin">
+                        {/* <span className="input-group-addon">Guest login</span> */}
+                        <form onSubmit={this.handleSubmit}>
+                            <div className="form-group">
+                                <input 
+                                    className="form-control" 
+                                    id="guestname" 
+                                    type="text" 
+                                    placeholder="Name"
+                                    onChange={this.handleChange}
+                                    onKeyPress={this.handleKeyPress} 
+                                    value={this.state.content}
+                                    maxLength="140" 
+                                    required   
+                                >
+                                </input>
                             </div>
-                        </div>
-                    </div>                
+                        </form>
+                    </div>
                 </div>
             </div>
         );
