@@ -9,7 +9,7 @@
       </div>
     </section>
     <div class="col-md-12">
-        <input id="channel_name" type="hidden" value="{{$channel->name}}"">
+        <input id="channel_name" type="hidden" value="{{$channel->name}}">
         <div id="root"></div>
     </div>
 

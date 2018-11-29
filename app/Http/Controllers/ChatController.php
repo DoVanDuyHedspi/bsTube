@@ -10,7 +10,7 @@ class ChatController extends Controller
 {
     public function index(Request $request, Chat $chat) {
         $channel_name = $request->query('channel_name');
-        $comments = $chat->Where('channel_name', $channel_name)->get();
+        $comments = $chat->Where('channel_name', $channel_name)->with('user')->get();
         return response()->json([
             'comments' => $comments,
         ]);

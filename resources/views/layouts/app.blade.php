@@ -25,6 +25,7 @@
     <link href="{{ asset('css/slate.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
     <link href="{{ asset('css/login.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/chat.css') }}" rel="stylesheet">
 
 
     <script>

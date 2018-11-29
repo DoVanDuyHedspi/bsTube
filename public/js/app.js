@@ -66957,6 +66957,7 @@ var App = function (_Component) {
         };
         _this.handleSubmit = _this.handleSubmit.bind(_this);
         _this.handleChange = _this.handleChange.bind(_this);
+        _this.handleKeyPress = _this.handleKeyPress.bind(_this);
         _this.renderComments = _this.renderComments.bind(_this);
         return _this;
     }
@@ -66968,10 +66969,11 @@ var App = function (_Component) {
 
             this.setState({ loading: true });
             __WEBPACK_IMPORTED_MODULE_1_axios___default.a.get('/comments', { params: { channel_name: this.props.name } }).then(function (response) {
-                return _this2.setState({
+                _this2.setState({
                     comments: [].concat(_toConsumableArray(response.data.comments)),
                     loading: false
                 });
+                console.log(response);
             });
         }
     }, {
@@ -67023,9 +67025,18 @@ var App = function (_Component) {
     }, {
         key: 'handleChange',
         value: function handleChange(e) {
+
             this.setState({
                 content: e.target.value
             });
+        }
+    }, {
+        key: 'handleKeyPress',
+        value: function handleKeyPress(e) {
+            console.log(e);
+            if (e.key == 'Enter') {
+                this.handleSubmit(e);
+            }
         }
     }, {
         key: 'renderComments',
@@ -67034,19 +67045,21 @@ var App = function (_Component) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
                     { key: comment.id, className: 'media' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'media-left' }),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'media-body' },
+                        { style: { color: 'green' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            { className: 'user' },
-                            '- ',
-                            comment.humanCreatedAt
+                            'span',
+                            null,
+                            '[',
+                            comment.humanCreatedAt,
+                            '] '
                         ),
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'p',
+                            'span',
                             null,
+                            comment.user.username,
+                            ': ',
                             comment.content
                         )
                     )
@@ -67058,59 +67071,64 @@ var App = function (_Component) {
         value: function render() {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'div',
-                { className: 'container' },
+                { className: '' },
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
-                    { className: 'row justify-content-center col-md-6' },
+                    { className: 'col-lg-5 col-md-5', id: 'chatwrap' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'col-md-12' },
+                        { id: 'chatheader' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('i', { className: 'glyphicon glyphicon-chevron-down pull-left pointer', id: 'userlisttoggle', title: 'Show/Hide Userlist' }),
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'span',
+                            { className: 'pointer', id: 'usercount' },
+                            '4 connected users'
+                        )
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { id: 'userlist', style: { height: 388 + 'px' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'div',
-                            { className: 'card' },
+                            { className: 'userlist_item userlist_afk' },
+                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-time' }),
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'div',
-                                { className: 'card-header' },
-                                'Recent tweets '
-                            ),
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'div',
-                                { className: 'card-body' },
-                                !this.state.loading ? this.renderComments() : 'Loading'
+                                'span',
+                                { className: 'userlist_op', style: { fontStyle: 'italic' } },
+                                'AlbanianAndy'
                             )
                         )
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'col-md-12' },
+                        { className: 'linewrap', id: 'messagebuffer', style: { height: 388 + 'px' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'div',
-                            { className: 'card' },
+                            { className: 'server-msg-reconnect' },
+                            'Connected'
+                        ),
+                        !this.state.loading ? this.renderComments() : 'Loading'
+                    ),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { className: 'input-group', id: 'guestlogin' },
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'form',
+                            { onSubmit: this.handleSubmit },
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 'div',
-                                { className: 'card-header' },
-                                'Tweet something...'
-                            ),
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'div',
-                                { className: 'card-body' },
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    'form',
-                                    { onSubmit: this.handleSubmit },
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                        'div',
-                                        { className: 'form-group' },
-                                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('textarea', {
-                                            onChange: this.handleChange,
-                                            value: this.state.content,
-                                            className: 'form-control',
-                                            row: '5',
-                                            maxLength: '140',
-                                            placeholder: 'What up?',
-                                            required: true })
-                                    ),
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { type: 'submit', value: 'Post', className: 'form-control' })
-                                )
+                                { className: 'form-group' },
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', {
+                                    className: 'form-control',
+                                    id: 'guestname',
+                                    type: 'text',
+                                    placeholder: 'Name',
+                                    onChange: this.handleChange,
+                                    onKeyPress: this.handleKeyPress,
+                                    value: this.state.content,
+                                    maxLength: '140',
+                                    required: true
+                                })
                             )
                         )
                     )
