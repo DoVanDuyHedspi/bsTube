@@ -8,9 +8,10 @@
         </div>
       </div>
     </section>
-    <div class="col-md-12">
+    <div class="col-md-12 row">
         <input id="channel_name" type="hidden" value="{{$channel->name}}">
-        <div id="root"></div>
+        <div id="comment" class="col-md-5"></div>
+        <div id="youtube" class="col-md-7"></div>
     </div>
 
 @endsection

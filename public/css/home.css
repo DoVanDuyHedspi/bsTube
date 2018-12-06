@@ -8,5 +8,5 @@ table td {
 #wrap .bg-mae {
   height: 650px;
   width: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: #161a20 !important;
 }

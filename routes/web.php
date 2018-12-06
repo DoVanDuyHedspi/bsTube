@@ -20,4 +20,6 @@ Route::group(['middleware' => ['auth']], function() {
   Route::get('/account/channels', 'MyChannelsController@index')->name('my_channels');
   Route::post('/account/channels', 'MyChannelsController@store')->name('create_channel');
   Route::delete('/account/channels/{name}/delete', 'MyChannelsController@destroy')->name('destroy_channel');
+
+  Route::get('/channel/playlist', 'ChannelController@getPlaylist');
 });
