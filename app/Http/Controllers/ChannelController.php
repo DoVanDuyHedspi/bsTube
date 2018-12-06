@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Channel;
+use Alaouy\Youtube\Facades\Youtube;
 
 class ChannelController extends Controller {
 
@@ -11,11 +12,15 @@ class ChannelController extends Controller {
         return view('channels.index', compact('channel'));
     }
 
-    public function getPlaylist(Request $request) {
+    public function getPlaylist(Request $request, Channel $channel) {
         $channel_name = $request->query('channel_name');
-        $playlist = Channel::find($channel_name)->link;
+        $playlists = Channel::find($channel_name)->link;
+        foreach($playlists as $stt => $videoId) {
+            $playlists[$stt] = Youtube::getVideoInfo($videoId);
+            $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
+        }
         return response()->json([
-            'playlist' => $playlist,
+            'playlists' => $playlists,
         ]);
     }
 }
