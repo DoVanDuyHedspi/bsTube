@@ -11,6 +11,9 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
     <!-- Fonts -->
     <!-- <link rel="dns-prefetch" href="https://fonts.gstatic.com"> -->
@@ -20,12 +23,14 @@
 
     <!-- Styles -->
     <!-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> -->
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link href="{{ asset('css/home.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/slate.css') }}" rel="stylesheet">
     <link href="{{ asset('css/navbar.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/login.css') }}" rel="stylesheet">
     <link href="{{ asset('css/chat.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/slate.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/login.css') }}" rel="stylesheet">
+    
 
 
     <script>
@@ -41,7 +46,7 @@
     </script>
 </head>
 <body>
-    <div id="wrap" style="background-image: url({{asset('images/ab.jpg')}}); background-size: 100% 92%;">
+    <div id="wrap">
         <div class="bg-mae">
             <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="navbar-header">

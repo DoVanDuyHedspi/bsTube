@@ -101,7 +101,7 @@ class App extends Component {
     render() {
         return (
             <div className="">
-                <div className="col-lg-5 col-md-5" id="chatwrap">
+                <div className="col-md-12" id="chatwrap">
                     <div id="chatheader">
                         <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
                         <span className="pointer" id="usercount">4 connected users</span>
