@@ -67178,7 +67178,7 @@ var PlayVideo = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (PlayVideo.__proto__ || Object.getPrototypeOf(PlayVideo)).call(this, props));
 
     _this.state = {
-      playlist: []
+      playlists: []
     };
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
@@ -67192,7 +67192,7 @@ var PlayVideo = function (_React$Component) {
 
       axios.get('/channel/playlist', { params: { channel_name: this.props.name } }).then(function (response) {
         _this2.setState({
-          playlist: [].concat(_toConsumableArray(response.data.playlist))
+          playlists: [].concat(_toConsumableArray(response.data.playlists))
         });
         console.log(response);
       });
@@ -67211,19 +67211,19 @@ var PlayVideo = function (_React$Component) {
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'ul',
           { className: 'videolist ui-sortable ui-sortable-disabled', id: 'queue' },
-          this.state.playlist.map(function (link) {
+          this.state.playlists.map(function (video) {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'li',
               { className: 'queue_entry queue_temp' },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'a',
                 { className: 'qe_title', href: '#', target: '_blank' },
-                'Saori Hara FULL'
+                video.snippet.title
               ),
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'span',
                 { className: 'qe_time' },
-                '01:30:51'
+                video.contentDetails.duration
               ),
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'qe_clear' })
             );

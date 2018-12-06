@@ -5,7 +5,7 @@ class PlayVideo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      playlist: [],
+      playlists: [],
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
@@ -16,9 +16,9 @@ class PlayVideo extends React.Component {
         response
     ) => {
             this.setState({
-                playlist: [...response.data.playlist]
+                playlists: [...response.data.playlists]
             });
-            console.log(response)
+            console.log(response) 
         }
         
     )
@@ -32,8 +32,8 @@ class PlayVideo extends React.Component {
     return (
       <div>
         <ul className="videolist ui-sortable ui-sortable-disabled" id="queue">
-          {this.state.playlist.map(link => (
-            <li className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">Saori Hara FULL</a><span className="qe_time">01:30:51</span>
+          {this.state.playlists.map(video => (
+            <li className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
               <div className="qe_clear"></div>
             </li>
           ))}

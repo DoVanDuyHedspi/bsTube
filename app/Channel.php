@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use DateInterval;
 
 class Channel extends Model
 {
@@ -18,5 +19,17 @@ class Channel extends Model
 
     public function user() {
         return $this->belongsTo('App\User');
+    }
+
+    function covtime($ytDuration) {
+
+        $di = new DateInterval($ytDuration);
+        $string = '';
+    
+        if ($di->h > 0) {
+          $string .= $di->h.':';
+        }
+    
+        return $string.$di->i.':'.$di->s;
     }
 }
