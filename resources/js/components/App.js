@@ -8,12 +8,16 @@ class App extends Component {
         this.state = {
             content: '',
             comments: [],
-            loading: false
+            loading: false,
+            members: [],
+            numberOfMembers: 0
+
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.renderComments = this.renderComments.bind(this); 
+        this.renderListMembers = this.renderListMembers.bind(this); 
     }
 
     getComments() {
@@ -35,10 +39,33 @@ class App extends Component {
         this.getComments();
     }
 
+    removeMembersInList(array, element) {
+      const index = array.indexOf(element);
+      array.splice(index, 1);
+    }
+
     componentDidMount() {
         Echo.join(`channel.${this.props.name}`)
-            .here(function(){
-                console.log(`duy`)
+            .here((users) => {
+                this.setState({
+                    members: [...users],
+                    numberOfMembers: users.length
+                });
+            })
+            .joining((user) => {
+              console.log(user.username);
+              this.setState({
+                members: [...this.state.members,user],
+                numberOfMembers: this.state.numberOfMembers+1
+              });
+            })
+            .leaving((user) => {
+                const listMembers = this.state.members;
+                this.removeMembersInList(listMembers,user);
+                this.setState({
+                  members: [...listMembers],
+                  numberOfMembers: this.state.numberOfMembers-1
+                });
             })
             .listen('CommentCreated', (e) => {
                 console.log(e);
@@ -98,25 +125,31 @@ class App extends Component {
         
     }
 
+    renderListMembers() {
+        return this.state.members.map(user => (
+          <div key={user.id} className="userlist_item userlist_afk">
+            <span className="glyphicon glyphicon-time"></span>
+            <span className="userlist_op" style={{fontStyle: 'italic'}}>{user.username}</span>
+          </div>
+        ))
+    }
+
     render() {
         return (
             <div className="">
                 <div className="col-md-12" id="chatwrap">
                     <div id="chatheader">
                         <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
-                        <span className="pointer" id="usercount">4 connected users</span>
+                        <span className="pointer" id="usercount">{this.state.numberOfMembers} connected users</span>
                     </div>
-                    <div id="userlist" style={{height: 388 + 'px'}}>
-                        <div className="userlist_item userlist_afk">
-                            <span className="glyphicon glyphicon-time"></span>
-                            <span className="userlist_op" style={{fontStyle: 'italic'}}>AlbanianAndy</span>
-                        </div>
+                    <div id="userlist" style={{height: 388 + 'px'}}> 
+                      {this.renderListMembers()}   
                     </div>
                     <div className="linewrap" id="messagebuffer" style={{height: 388 + 'px'}}>
                         <div className="server-msg-reconnect">Connected</div>
                         {!this.state.loading ? this.renderComments() : 'Loading'}
                     </div>
-                    <div className="input-group" id="guestlogin">
+                    <div className="input-group col-xs-12" id="guestlogin">
                         {/* <span className="input-group-addon">Guest login</span> */}
                         <form onSubmit={this.handleSubmit}>
                             <div className="form-group">
@@ -124,7 +157,7 @@ class App extends Component {
                                     className="form-control" 
                                     id="guestname" 
                                     type="text" 
-                                    placeholder="Name"
+                                    placeholder="What's up!"
                                     onChange={this.handleChange}
                                     onKeyPress={this.handleKeyPress} 
                                     value={this.state.content}
