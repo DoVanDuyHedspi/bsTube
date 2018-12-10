@@ -66959,12 +66959,16 @@ var App = function (_Component) {
         _this.state = {
             content: '',
             comments: [],
-            loading: false
+            loading: false,
+            members: [],
+            numberOfMembers: 0
+
         };
         _this.handleSubmit = _this.handleSubmit.bind(_this);
         _this.handleChange = _this.handleChange.bind(_this);
         _this.handleKeyPress = _this.handleKeyPress.bind(_this);
         _this.renderComments = _this.renderComments.bind(_this);
+        _this.renderListMembers = _this.renderListMembers.bind(_this);
         return _this;
     }
 
@@ -66988,12 +66992,34 @@ var App = function (_Component) {
             this.getComments();
         }
     }, {
+        key: 'removeMembersInList',
+        value: function removeMembersInList(array, element) {
+            var index = array.indexOf(element);
+            array.splice(index, 1);
+        }
+    }, {
         key: 'componentDidMount',
         value: function componentDidMount() {
             var _this3 = this;
 
-            Echo.join('channel.' + this.props.name).here(function () {
-                console.log('duy');
+            Echo.join('channel.' + this.props.name).here(function (users) {
+                _this3.setState({
+                    members: [].concat(_toConsumableArray(users)),
+                    numberOfMembers: users.length
+                });
+            }).joining(function (user) {
+                console.log(user.username);
+                _this3.setState({
+                    members: [].concat(_toConsumableArray(_this3.state.members), [user]),
+                    numberOfMembers: _this3.state.numberOfMembers + 1
+                });
+            }).leaving(function (user) {
+                var listMembers = _this3.state.members;
+                _this3.removeMembersInList(listMembers, user);
+                _this3.setState({
+                    members: [].concat(_toConsumableArray(listMembers)),
+                    numberOfMembers: _this3.state.numberOfMembers - 1
+                });
             }).listen('CommentCreated', function (e) {
                 console.log(e);
                 _this3.setState({ comments: [].concat(_toConsumableArray(_this3.state.comments), [e.comment]) });
@@ -67073,6 +67099,22 @@ var App = function (_Component) {
             });
         }
     }, {
+        key: 'renderListMembers',
+        value: function renderListMembers() {
+            return this.state.members.map(function (user) {
+                return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                    'div',
+                    { key: user.id, className: 'userlist_item userlist_afk' },
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-time' }),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'span',
+                        { className: 'userlist_op', style: { fontStyle: 'italic' } },
+                        user.username
+                    )
+                );
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -67088,22 +67130,14 @@ var App = function (_Component) {
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'span',
                             { className: 'pointer', id: 'usercount' },
-                            '4 connected users'
+                            this.state.numberOfMembers,
+                            ' connected users'
                         )
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
                         { id: 'userlist', style: { height: 388 + 'px' } },
-                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            'div',
-                            { className: 'userlist_item userlist_afk' },
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-time' }),
-                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                'span',
-                                { className: 'userlist_op', style: { fontStyle: 'italic' } },
-                                'AlbanianAndy'
-                            )
-                        )
+                        this.renderListMembers()
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
@@ -67117,7 +67151,7 @@ var App = function (_Component) {
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'input-group', id: 'guestlogin' },
+                        { className: 'input-group col-xs-12', id: 'guestlogin' },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'form',
                             { onSubmit: this.handleSubmit },
@@ -67128,7 +67162,7 @@ var App = function (_Component) {
                                     className: 'form-control',
                                     id: 'guestname',
                                     type: 'text',
-                                    placeholder: 'Name',
+                                    placeholder: 'What\'s up!',
                                     onChange: this.handleChange,
                                     onKeyPress: this.handleKeyPress,
                                     value: this.state.content,
@@ -67214,7 +67248,7 @@ var PlayVideo = function (_React$Component) {
           this.state.playlists.map(function (video) {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'li',
-              { className: 'queue_entry queue_temp' },
+              { key: video.id, className: 'queue_entry queue_temp' },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'a',
                 { className: 'qe_title', href: '#', target: '_blank' },

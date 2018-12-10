@@ -20,5 +20,5 @@ Broadcast::channel('new-post', function ($user) {
 });
 
 Broadcast::channel('channel.{channelName}', function($user, $channelName) {
-    return ['id' => $user->id, 'name' => $user->name];
+    return ['id' => $user->id, 'username' => $user->username];
 });
