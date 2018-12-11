@@ -6,9 +6,14 @@ class PlayVideo extends React.Component {
     super(props);
     this.state = {
       playlists: [],
+      ableAddLink: 1,
+      isMaster: false,
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
+    this.renderButtonPermissions = this.renderButtonPermissions.bind(this);
+    this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
+    this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
   }
 
   getPlaylist() {
@@ -24,9 +29,37 @@ class PlayVideo extends React.Component {
     )
   }
 
+  getPermissions() {
+    axios.get('/channel/permissions', {params: {channel_name: this.props.name}}).then((
+      response
+    ) => {
+      if(response.data.isMaster) {
+        this.setState({
+          ableAddLink: response.data.status,
+          isMaster: true
+        })
+      }else {
+        this.setState({
+          ableAddLink: response.data.status,
+          isMaster: false
+        })
+      }
+    }
+    )
+  }
+
   componentWillMount() {
     this.getPlaylist();
+    this.getPermissions();
   }
+
+  componentDidMount() {
+    Echo.join(`channel.${this.props.name}`)
+        .listen('ChangePermissions', (e) => {
+          console.log(e);
+          this.setState({ableAddLink: e.status})
+        })
+}
 
   renderPlaylist() {
     return (
@@ -47,6 +80,45 @@ class PlayVideo extends React.Component {
       </div>
     )
     
+  }
+
+  handleCLickButtonPermissions() {
+    axios
+        .post('/channel/change_permissions', {
+            status: this.state.ableAddLink,
+            channel_name: this.props.name
+        })
+        .then(response => {
+            this.setState({
+                ableAddLink: response.data.status,          
+            })
+        });
+
+  }
+
+  renderButtonPermissions() {
+    if(this.state.ableAddLink == 1){
+      return (
+        <button onClick={this.handleCLickButtonPermissions} className="btn btn-sm btn-success" id="qlockbtn" title="Playlist Unlocked" disabled={this.state.isMaster ? '' : 'disabled'}><span className="glyphicon glyphicon-ok"></span>
+        </button>
+      )
+    }else if(this.state.ableAddLink != 1){
+      return (
+        <button onClick={this.handleCLickButtonPermissions} className="btn btn-sm btn-danger" id="qlockbtn" title="Playlist Unlocked" disabled={this.state.isMaster ? '' : 'disabled'}><span className="glyphicon glyphicon-remove"></span>
+        </button>
+      )
+    }
+  }
+
+  renderButtonAddLink() {
+    if(this.state.ableAddLink == 2 && this.state.isMaster == false) {
+      return ('')
+    } else {
+      return (
+        <button className="btn btn-sm btn-default " id="showsearch" title="Add a video" data-toggle="collapse" data-target="#addfromurl" aria-expanded="true" aria-pressed="true"><span className="glyphicon glyphicon-plus"></span>
+        </button> 
+      )
+    }
   }
 
   render() {
@@ -72,12 +144,12 @@ class PlayVideo extends React.Component {
           <div className="btn-group" id="plcontrol">
             <button className="btn btn-sm btn-default " id="showsearch" title="Search for a video" data-toggle="collapse" data-target="#searchcontrol" aria-expanded="true" aria-pressed="true"><span className="glyphicon glyphicon-search"></span>
             </button>
-            <button className="btn btn-sm btn-default " id="showsearch" title="Search for a video" data-toggle="collapse" data-target="#addfromurl" aria-expanded="true" aria-pressed="true"><span className="glyphicon glyphicon-plus"></span>
-            </button>   
-            <button className="btn btn-sm btn-default collapsed" id="showplaylistmanager" title="Manage playlists" data-toggle="collapse" data-target="#playlistmanager" aria-expanded="false" aria-pressed="false"><span className="glyphicon glyphicon-list"></span>
-            </button>
-            <button className="btn btn-sm btn-success" id="qlockbtn" title="Playlist Unlocked" disabled="disabled"><span className="glyphicon glyphicon-ok"></span>
-            </button>
+            {this.renderButtonAddLink()}
+            {/* <button className="btn btn-sm btn-default collapsed" id="showplaylistmanager" title="Manage playlists" data-toggle="collapse" data-target="#playlistmanager" aria-expanded="false" aria-pressed="false"><span className="glyphicon glyphicon-list"></span>
+            </button> */}
+            {/* <button className="btn btn-sm btn-success" id="qlockbtn" title="Playlist Unlocked" disabled="disabled"><span className="glyphicon glyphicon-ok"></span>
+            </button> */}
+            {this.renderButtonPermissions()}
           </div>
           <div className="btn-group pull-right" id="videocontrols">
             <button className="btn btn-sm btn-default" id="mediarefresh" title="Reload the video player"><span className="glyphicon glyphicon-retweet"></span>
@@ -129,7 +201,7 @@ class PlayVideo extends React.Component {
                   </label>
                 </div>
               </div> */}
-              <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="playlistmanager" aria-expanded="false" style={{height: 0 + 'px'}}>
+              {/* <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="playlistmanager" aria-expanded="false" style={{height: 0 + 'px'}}>
                 <div className="vertical-spacer"></div>
                 <div className="input-group">
                   <input className="form-control" id="userpl_name" type="text" placeholder="Playlist Name"></input>
@@ -141,7 +213,7 @@ class PlayVideo extends React.Component {
                   </label>
                 </div>
                 <ul className="videolist" id="userpl_list"></ul>
-              </div>
+              </div> */}
               <div className="col-lg-12 col-md-12" id="queuefail">
                 <div className="vertical-spacer"></div>
               </div>
