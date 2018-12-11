@@ -22,4 +22,6 @@ Route::group(['middleware' => ['auth']], function() {
   Route::delete('/account/channels/{name}/delete', 'MyChannelsController@destroy')->name('destroy_channel');
 
   Route::get('/channel/playlist', 'ChannelController@getPlaylist');
+  Route::get('/channel/permissions', 'ChannelController@getStatus');
+  Route::post('/channel/change_permissions','ChannelController@changePermissions');
 });

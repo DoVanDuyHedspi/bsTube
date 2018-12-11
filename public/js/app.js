@@ -67212,10 +67212,15 @@ var PlayVideo = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (PlayVideo.__proto__ || Object.getPrototypeOf(PlayVideo)).call(this, props));
 
     _this.state = {
-      playlists: []
+      playlists: [],
+      ableAddLink: 1,
+      isMaster: false
     };
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
+    _this.renderButtonPermissions = _this.renderButtonPermissions.bind(_this);
+    _this.handleCLickButtonPermissions = _this.handleCLickButtonPermissions.bind(_this);
+    _this.renderButtonAddLink = _this.renderButtonAddLink.bind(_this);
     return _this;
   }
 
@@ -67232,9 +67237,39 @@ var PlayVideo = function (_React$Component) {
       });
     }
   }, {
+    key: 'getPermissions',
+    value: function getPermissions() {
+      var _this3 = this;
+
+      axios.get('/channel/permissions', { params: { channel_name: this.props.name } }).then(function (response) {
+        if (response.data.isMaster) {
+          _this3.setState({
+            ableAddLink: response.data.status,
+            isMaster: true
+          });
+        } else {
+          _this3.setState({
+            ableAddLink: response.data.status,
+            isMaster: false
+          });
+        }
+      });
+    }
+  }, {
     key: 'componentWillMount',
     value: function componentWillMount() {
       this.getPlaylist();
+      this.getPermissions();
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this4 = this;
+
+      Echo.join('channel.' + this.props.name).listen('ChangePermissions', function (e) {
+        console.log(e);
+        _this4.setState({ ableAddLink: e.status });
+      });
     }
   }, {
     key: 'renderPlaylist',
@@ -67280,6 +67315,50 @@ var PlayVideo = function (_React$Component) {
       );
     }
   }, {
+    key: 'handleCLickButtonPermissions',
+    value: function handleCLickButtonPermissions() {
+      var _this5 = this;
+
+      axios.post('/channel/change_permissions', {
+        status: this.state.ableAddLink,
+        channel_name: this.props.name
+      }).then(function (response) {
+        _this5.setState({
+          ableAddLink: response.data.status
+        });
+      });
+    }
+  }, {
+    key: 'renderButtonPermissions',
+    value: function renderButtonPermissions() {
+      if (this.state.ableAddLink == 1) {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.handleCLickButtonPermissions, className: 'btn btn-sm btn-success', id: 'qlockbtn', title: 'Playlist Unlocked', disabled: this.state.isMaster ? '' : 'disabled' },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-ok' })
+        );
+      } else if (this.state.ableAddLink != 1) {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.handleCLickButtonPermissions, className: 'btn btn-sm btn-danger', id: 'qlockbtn', title: 'Playlist Unlocked', disabled: this.state.isMaster ? '' : 'disabled' },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-remove' })
+        );
+      }
+    }
+  }, {
+    key: 'renderButtonAddLink',
+    value: function renderButtonAddLink() {
+      if (this.state.ableAddLink == 2 && this.state.isMaster == false) {
+        return '';
+      } else {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { className: 'btn btn-sm btn-default ', id: 'showsearch', title: 'Add a video', 'data-toggle': 'collapse', 'data-target': '#addfromurl', 'aria-expanded': 'true', 'aria-pressed': 'true' },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-plus' })
+        );
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var opts = {
@@ -67318,21 +67397,8 @@ var PlayVideo = function (_React$Component) {
               { className: 'btn btn-sm btn-default ', id: 'showsearch', title: 'Search for a video', 'data-toggle': 'collapse', 'data-target': '#searchcontrol', 'aria-expanded': 'true', 'aria-pressed': 'true' },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-search' })
             ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'button',
-              { className: 'btn btn-sm btn-default ', id: 'showsearch', title: 'Search for a video', 'data-toggle': 'collapse', 'data-target': '#addfromurl', 'aria-expanded': 'true', 'aria-pressed': 'true' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-plus' })
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'button',
-              { className: 'btn btn-sm btn-default collapsed', id: 'showplaylistmanager', title: 'Manage playlists', 'data-toggle': 'collapse', 'data-target': '#playlistmanager', 'aria-expanded': 'false', 'aria-pressed': 'false' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-list' })
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'button',
-              { className: 'btn btn-sm btn-success', id: 'qlockbtn', title: 'Playlist Unlocked', disabled: 'disabled' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-ok' })
-            )
+            this.renderButtonAddLink(),
+            this.renderButtonPermissions()
           ),
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             'div',
@@ -67453,40 +67519,6 @@ var PlayVideo = function (_React$Component) {
                   )
                 ),
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { id: 'addfromurl-queue' })
-              ),
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'div',
-                { className: 'plcontrol-collapse col-lg-12 col-md-12 collapse', id: 'playlistmanager', 'aria-expanded': 'false', style: { height: 0 + 'px' } },
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'vertical-spacer' }),
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                  'div',
-                  { className: 'input-group' },
-                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'form-control', id: 'userpl_name', type: 'text', placeholder: 'Playlist Name' }),
-                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'span',
-                    { className: 'input-group-btn' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                      'button',
-                      { className: 'btn btn-default', id: 'userpl_save' },
-                      'Save'
-                    )
-                  )
-                ),
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                  'div',
-                  { className: 'checkbox' },
-                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                    'label',
-                    null,
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'add-temp', type: 'checkbox', defaultChecked: true }),
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                      'span',
-                      null,
-                      'Add as temporary'
-                    )
-                  )
-                ),
-                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('ul', { className: 'videolist', id: 'userpl_list' })
               ),
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'div',
