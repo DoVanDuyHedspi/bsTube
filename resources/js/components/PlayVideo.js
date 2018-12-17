@@ -6,13 +6,16 @@ class PlayVideo extends React.Component {
     super(props);
     this.state = {
       playlists: [],
+      newLink: '',
       ableAddLink: 1,
       isMaster: false,
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
     this.renderButtonPermissions = this.renderButtonPermissions.bind(this);
+    this.handleChangeLink = this.handleChangeLink.bind(this);
     this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
+    this.handleAddLink = this.handleAddLink.bind(this);
     this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
     this._nextVideo = this._nextVideo.bind(this);
   }
@@ -67,6 +70,11 @@ class PlayVideo extends React.Component {
           newPlaylists.shift();
           this.setState({playlists: newPlaylists});
         })
+        .listen('AddLink', (e)=> {
+          const newPlaylists = this.state.playlists;
+          newPlaylists.push(this.state.newLink);
+          this.setState({playlists: newPlaylists});
+        })
 }
 
   renderPlaylist() {
@@ -98,6 +106,27 @@ class PlayVideo extends React.Component {
             })
         });
 
+  }
+
+  //Add link
+  handleAddLink() {
+    axios
+        .post('/channel/add_link', {
+          channel_name: this.props.name,
+          newLink: this.state.newLink
+        })
+        .then(response => {
+          this.setState({
+              playlists: response.data.newPlaylists,
+              newLink: ''
+          })
+        });
+  }
+
+  handleChangeLink(e) {  
+    this.setState({
+        newLink: e.target.value
+    })
   }
 
   renderButtonPermissions() {
@@ -198,9 +227,16 @@ class PlayVideo extends React.Component {
               <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="addfromurl" aria-expanded="false" style={{height: 88+ 'px'}}>
                 <div className="vertical-spacer"></div>
                 <div className="input-group">
-                  <input className="form-control" id="library_query" type="text" placeholder="Search query"></input>
-                  <span className="input-group-btn"><button className="btn btn-default" id="next">Next</button></span>
-                  <span className="input-group-btn"><button className="btn btn-default" id="adEnd">At end</button></span>
+                  <input 
+                      className="form-control" 
+                      id="library_query" 
+                      type="text"
+                      value={this.state.newLink}
+                      onChange={this.handleChangeLink}
+                      placeholder="Add link">
+                  </input>
+                  <span className="input-group-btn"><button className="btn btn-default" id="next" onClick={this.handleAddLink}>Next</button></span>
+                  <span className="input-group-btn"><button className="btn btn-default" id="atEnd">At end</button></span>
                 </div>
                 <div className="checkbox">
                   <label>
