@@ -124,7 +124,7 @@ class App extends Component {
     renderComments() {
         return this.state.comments.map(comment => (
             <div key={comment.id} className="media">
-                <div style={{color: 'green'}}>
+                <div style={{color: 'white'}}>
                     <span>[{comment.humanCreatedAt}] </span><span>{comment.user.username}: {comment.content}</span>
                 </div>                                                           
             </div>))
