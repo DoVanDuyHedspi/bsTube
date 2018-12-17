@@ -79,7 +79,7 @@ class PlayVideo extends React.Component {
         })
         .listen('AddLink', (e)=> {
           const newPlaylists = e.playlists;
-          this.setState({playlists: newPlaylists});
+          this.setState({playlists: newPlaylists, startTime: 0});
         })
         .listen('PlayNewVideo', (e) => {
           this.playNewVideo(e.id);
@@ -197,7 +197,8 @@ class PlayVideo extends React.Component {
         .then(response => {
           this.setState({
               playlists: response.data.newPlaylists,
-              newLink: ''
+              newLink: '',
+              startTime: 0
           })
         });
   }
