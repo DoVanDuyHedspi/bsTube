@@ -8,6 +8,10 @@ use Alaouy\Youtube\Facades\Youtube;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ChangePermissions;
 use App\Events\NextVideo;
+use App\Events\AddLink;
+use App\Events\PlayNewVideo;
+use App\Events\QueueNext;
+use App\Events\DeleteVideo;
 use DateTime;
 
 class ChannelController extends Controller {
@@ -83,6 +87,41 @@ class ChannelController extends Controller {
         ]);
     }
 
+    public function addLink(Request $request, Channel $channel) {
+        $channel = Channel::find($request->channel_name);
+        $newLink = $channel->getYoutubeIdFromUrl($request->newLink);
+        // $newLink = $request->newLink;
+        $playlists = $channel->link;
+        if(count($playlists) == 0 ) {
+            $channel->start_video_time = new DateTime();
+        }
+        if($request->type == "atEnd"){
+            $addLink = array_push($playlists, $newLink);
+        } else {
+            $addLink = array_splice( $playlists, 1, 0, $newLink );
+        }
+        $channel->link = $playlists;
+        
+        $channel->save();
+        foreach($playlists as $stt => $videoId) {
+            $youtube = Youtube::getVideoInfo($videoId);
+            // dd($youtube);
+            $playlists[$stt] = array(
+                "id" => $videoId,
+                "snippet" => [
+                    "title" => $youtube->snippet->title
+                ],
+                "contentDetails" => [
+                    "duration" => $channel->covtime($youtube->contentDetails->duration)
+                ]
+            );
+        }
+        broadcast(new AddLink($channel, $playlists))->toOthers();
+        return response()->json([
+            'newPlaylists' => $playlists
+        ]);
+    }
+
     public function getStartVideoTime(Request $request) {
         $channel_name = $request->query('channel_name');
         $channel = Channel::find($channel_name);
@@ -94,5 +133,41 @@ class ChannelController extends Controller {
         return response()->json([
             'datetime' => $diffSeconds
         ]);
+    }
+
+    public function playNewVideo(Request $request) {
+        $id = $request->id;
+        $channel = Channel::find($request->channel_name);
+        $playlists = $channel->link;
+        $playlists[0]=$playlists[$id];
+        unset($playlists[$id]);
+        $channel->link = $playlists;
+        $channel->start_video_time = new DateTime('NOW');
+        $channel->save();
+        broadcast(new PlayNewVideo($id,$channel))->toOthers();
+
+    }
+
+    public function queueNext(Request $request) {
+        $index = $request->id;
+        $channel = Channel::find($request->channel_name);
+        $playlists = $channel->link;
+        $video = $playlists[$index];
+        for($i=$index; $i>1 ; $i--) {
+            $playlists[$i] = $playlists[$i-1];
+        }
+        $playlists[1] = $video;
+        $channel->link = $playlists;
+        broadcast(new QueueNext($index,$channel))->toOthers();
+    }
+
+    public function deleteVideo(Request $request) {
+        $index = $request->id;
+        $channel = Channel::find($request->channel_name);
+        $playlists = $channel->link;
+        unset($playlists[$index]);
+        $channel->link = $playlists;
+        $channel->save();
+        broadcast(new DeleteVideo($index, $channel));
     }
 }
