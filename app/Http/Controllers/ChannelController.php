@@ -15,6 +15,13 @@ class ChannelController extends Controller {
         return view('channels.index', compact('channel'));
     }
 
+    public function updateNumbersOfMembers(Request $request) {
+        $channel = Channel::find($request->channel_name);
+        $channel->numbers_of_member = $request->numbersOfMembers;
+        $channel->save();
+
+    }
+
     public function getPlaylist(Request $request, Channel $channel) {
         $channel_name = $request->query('channel_name');
         $playlists = Channel::find($channel_name)->link;

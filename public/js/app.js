@@ -67002,6 +67002,10 @@ var App = function (_Component) {
             var _this3 = this;
 
             Echo.join('channel.' + this.props.name).here(function (users) {
+                __WEBPACK_IMPORTED_MODULE_1_axios___default.a.put('/channel/update_numbers_members', {
+                    numbersOfMembers: users.length,
+                    channel_name: _this3.props.name
+                });
                 _this3.setState({
                     members: [].concat(_toConsumableArray(users)),
                     numberOfMembers: users.length
@@ -67012,6 +67016,10 @@ var App = function (_Component) {
                     numberOfMembers: _this3.state.numberOfMembers + 1
                 });
             }).leaving(function (user) {
+                __WEBPACK_IMPORTED_MODULE_1_axios___default.a.put('/channel/update_numbers_members', {
+                    numbersOfMembers: _this3.state.numberOfMembers - 1,
+                    channel_name: _this3.props.name
+                });
                 var listMembers = _this3.state.members;
                 _this3.removeMembersInList(listMembers, user);
                 _this3.setState({

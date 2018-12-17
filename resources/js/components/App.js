@@ -46,6 +46,11 @@ class App extends Component {
     componentDidMount() {
         Echo.join(`channel.${this.props.name}`)
             .here((users) => {
+                axios
+                    .put('/channel/update_numbers_members', {
+                        numbersOfMembers: users.length,
+                        channel_name: this.props.name
+                    });
                 this.setState({
                     members: [...users],
                     numberOfMembers: users.length
@@ -58,6 +63,11 @@ class App extends Component {
               });
             })
             .leaving((user) => {
+                axios
+                    .put('/channel/update_numbers_members', {
+                        numbersOfMembers: this.state.numberOfMembers-1,
+                        channel_name: this.props.name
+                    });
                 const listMembers = this.state.members;
                 this.removeMembersInList(listMembers,user);
                 this.setState({

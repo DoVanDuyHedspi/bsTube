@@ -21,6 +21,8 @@ Route::group(['middleware' => ['auth']], function() {
   Route::post('/account/channels', 'MyChannelsController@store')->name('create_channel');
   Route::delete('/account/channels/{name}/delete', 'MyChannelsController@destroy')->name('destroy_channel');
 
+
+  Route::put('/channel/update_numbers_members', 'ChannelController@updateNumbersOfMembers');
   Route::get('/channel/playlist', 'ChannelController@getPlaylist');
   Route::get('/channel/permissions', 'ChannelController@getStatus');
   Route::post('/channel/change_permissions','ChannelController@changePermissions');
