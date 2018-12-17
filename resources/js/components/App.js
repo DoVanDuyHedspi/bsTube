@@ -148,10 +148,10 @@ class App extends Component {
                         <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
                         <span className="pointer" id="usercount">{this.state.numberOfMembers} connected users</span>
                     </div>
-                    <div id="userlist" style={{height: 388 + 'px'}}> 
+                    <div id="userlist" style={{height: 70 + 'vh'}}>
                       {this.renderListMembers()}   
                     </div>
-                    <div className="linewrap" id="messagebuffer" style={{height: 388 + 'px'}}>
+                    <div className="linewrap" id="messagebuffer" style={{height: 70 + 'vh'}}>
                         <div className="server-msg-reconnect">Connected</div>
                         {!this.state.loading ? this.renderComments() : 'Loading'}
                     </div>

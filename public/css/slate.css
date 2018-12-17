@@ -1350,12 +1350,11 @@ html {
 }
 
 body {
-  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size:14px;
-  line-height:1.42857143;
-  color:#c8c8c8;
+  font-family:"Nunito", sans-serif;
+  font-size:1.6rem;
+  line-height:1.6;
+  color: white;
   background-color:#131313;
-  ;
 }
 
 button,

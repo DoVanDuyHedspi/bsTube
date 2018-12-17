@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
     <section id="mainpage">
@@ -39,7 +39,7 @@
         </div>
         <div class="col-lg-3 col-md-3">
           <h3>Enter Channel</h3>
-          <input class="form-control" id="channelname" type="text" placeholder="Channel Name">
+          <input class="form-control" style="background-color: rgb(26, 26, 26); color: white" id="channelname" type="text" placeholder="Channel Name">
           <p class="text-muted">New channels can be registered from the <a href="{{ route('my_channels')}}">My Channels</a> page.</p>
         </div>
       </div>
