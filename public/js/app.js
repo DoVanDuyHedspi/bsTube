@@ -45982,13 +45982,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var channel_name = document.getElementById('channel_name').value;
+axios.get('/channel/start_video_time', { params: { channel_name: channel_name } }).then(function (res) {
+    var start_video_time = res.data.datetime;
+    console.log(start_video_time);
+    if (document.getElementById('youtube')) {
+        __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__PlayVideo__["a" /* default */], { name: channel_name, startTime: start_video_time }), document.getElementById('youtube'));
+    }
+});
 if (document.getElementById('comment')) {
-    var channel_name = document.getElementById('channel_name').value;
     __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__App__["a" /* default */], { name: channel_name }), document.getElementById('comment'));
-}
-
-if (document.getElementById('youtube')) {
-    __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__PlayVideo__["a" /* default */], { name: channel_name }), document.getElementById('youtube'));
 }
 
 /***/ }),
@@ -67219,7 +67222,8 @@ var PlayVideo = function (_React$Component) {
       playlists: [],
       newLink: '',
       ableAddLink: 1,
-      isMaster: false
+      isMaster: false,
+      startTime: _this.props.startTime
     };
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
@@ -67281,10 +67285,12 @@ var PlayVideo = function (_React$Component) {
       }).listen('NextVideo', function (e) {
         var newPlaylists = _this4.state.playlists;
         newPlaylists.shift();
-        _this4.setState({ playlists: newPlaylists });
+        _this4.setState({
+          playlists: newPlaylists,
+          startTime: 0
+        });
       }).listen('AddLink', function (e) {
-        var newPlaylists = _this4.state.playlists;
-        newPlaylists.push(_this4.state.newLink);
+        var newPlaylists = e.playlists;
         _this4.setState({ playlists: newPlaylists });
       });
     }
@@ -67314,20 +67320,6 @@ var PlayVideo = function (_React$Component) {
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'qe_clear' })
             );
           })
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'div',
-          { id: 'plmeta' },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { id: 'plcount' },
-            '4 items'
-          ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { id: 'pllength' },
-            '01:49:57'
-          )
         )
       );
     }
@@ -67350,12 +67342,13 @@ var PlayVideo = function (_React$Component) {
 
   }, {
     key: 'handleAddLink',
-    value: function handleAddLink() {
+    value: function handleAddLink(e) {
       var _this6 = this;
 
       axios.post('/channel/add_link', {
         channel_name: this.props.name,
-        newLink: this.state.newLink
+        newLink: this.state.newLink,
+        type: e.target.id
       }).then(function (response) {
         _this6.setState({
           playlists: response.data.newPlaylists,
@@ -67408,7 +67401,8 @@ var PlayVideo = function (_React$Component) {
       if (this.state.isMaster) {
         axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
           _this7.setState({
-            playlists: res.data.newPlaylists
+            playlists: res.data.newPlaylists,
+            startTime: 0
           });
         });
       }
@@ -67416,12 +67410,13 @@ var PlayVideo = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
+      var start_video_time = this.state.startTime;
       var opts = {
         height: '390',
         width: '100%',
         playerVars: { // https://developers.google.com/youtube/player_parameters
-          autoplay: 1
-          // start: 60,
+          autoplay: 1,
+          start: start_video_time
         }
       };
       var id = this.state.playlists[0] != null ? this.state.playlists[0].id : '';
@@ -67563,7 +67558,7 @@ var PlayVideo = function (_React$Component) {
                     { className: 'input-group-btn' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                       'button',
-                      { className: 'btn btn-default', id: 'atEnd' },
+                      { className: 'btn btn-default', id: 'atEnd', onClick: this.handleAddLink },
                       'At end'
                     )
                   )

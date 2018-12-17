@@ -15,12 +15,14 @@ class AddLink implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $playlists;
     public $channel;
-
-    public function __construct(Cn $channel)
+    public function __construct(Cn $channel, $playlists)
     {
         $this->channel = $channel;
+        $this->playlists = $playlists;
     }
+
 
     public function broadcastOn()
     {

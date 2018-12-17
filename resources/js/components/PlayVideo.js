@@ -9,6 +9,7 @@ class PlayVideo extends React.Component {
       newLink: '',
       ableAddLink: 1,
       isMaster: false,
+      startTime: this.props.startTime
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
@@ -68,11 +69,13 @@ class PlayVideo extends React.Component {
         .listen('NextVideo', (e) => {
           const newPlaylists = this.state.playlists;
           newPlaylists.shift();
-          this.setState({playlists: newPlaylists});
+          this.setState({
+            playlists: newPlaylists,
+            startTime: 0  
+          });
         })
         .listen('AddLink', (e)=> {
-          const newPlaylists = this.state.playlists;
-          newPlaylists.push(this.state.newLink);
+          const newPlaylists = e.playlists;
           this.setState({playlists: newPlaylists});
         })
 }
@@ -87,8 +90,8 @@ class PlayVideo extends React.Component {
             </li>
           ))}
         </ul>
-        <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
-        </div>
+        {/* <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
+        </div> */}
       </div>
     )
     
@@ -109,11 +112,12 @@ class PlayVideo extends React.Component {
   }
 
   //Add link
-  handleAddLink() {
+  handleAddLink(e) {
     axios
         .post('/channel/add_link', {
           channel_name: this.props.name,
-          newLink: this.state.newLink
+          newLink: this.state.newLink,
+          type: e.target.id
         })
         .then(response => {
           this.setState({
@@ -162,18 +166,20 @@ class PlayVideo extends React.Component {
           .then(res => {
             this.setState({
               playlists: res.data.newPlaylists,
+              startTime: 0
             });
           })
     }
   }
 
   render() {
+    const start_video_time = this.state.startTime;
     const opts = {
       height: '390',
       width: '100%',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 1,
-        // start: 60,
+        start: start_video_time
       }
     };
     const id = this.state.playlists[0] != null ? this.state.playlists[0].id : ''
@@ -236,7 +242,7 @@ class PlayVideo extends React.Component {
                       placeholder="Add link">
                   </input>
                   <span className="input-group-btn"><button className="btn btn-default" id="next" onClick={this.handleAddLink}>Next</button></span>
-                  <span className="input-group-btn"><button className="btn btn-default" id="atEnd">At end</button></span>
+                  <span className="input-group-btn"><button className="btn btn-default" id="atEnd" onClick={this.handleAddLink}>At end</button></span>
                 </div>
                 <div className="checkbox">
                   <label>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Events\ChangePermissions;
 use App\Events\NextVideo;
 use App\Events\AddLink;
+use DateTime;
 
 class ChannelController extends Controller {
 
@@ -70,12 +71,14 @@ class ChannelController extends Controller {
         $playlists = $channel->link;
         $videoIdRemoved = array_shift($playlists);
         $channel->link = $playlists;
+        $channel->start_video_time = new DateTime();
+        // dd($channel->start_video_time);
         $channel->save();
         foreach($playlists as $stt => $videoId) {
             $playlists[$stt] = Youtube::getVideoInfo($videoId);
             $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
         }
-        broadcast(new NextVideo($channel))->toOther();
+        broadcast(new NextVideo($channel))->toOthers();
         return response()->json([
             'newPlaylists' => $playlists
         ]);
@@ -85,16 +88,41 @@ class ChannelController extends Controller {
         $channel = Channel::find($request->channel_name);
         $newLink = $request->newLink;
         $playlists = $channel->link;
-        $addLink = array_push($playlists, $newLink);
+        if($request->type == "atEnd"){
+            $addLink = array_push($playlists, $newLink);
+        } else {
+            $addLink = array_splice( $playlists, 1, 0, $newLink );
+        }
         $channel->link = $playlists;
         $channel->save();
         foreach($playlists as $stt => $videoId) {
-            $playlists[$stt] = Youtube::getVideoInfo($videoId);
-            $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
+            $youtube = Youtube::getVideoInfo($videoId);
+            $playlists[$stt] = array(
+                "id" => $videoId,
+                "snippet" => [
+                    "title" => $youtube->snippet->title
+                ],
+                "contentDetails" => [
+                    "duration" => $channel->covtime($youtube->contentDetails->duration)
+                ]
+            );
         }
-        broadcast(new AddLink($channel))->toOther();
+        broadcast(new AddLink($channel, $playlists))->toOthers();
         return response()->json([
             'newPlaylists' => $playlists
+        ]);
+    }
+
+    public function getStartVideoTime(Request $request) {
+        $channel_name = $request->query('channel_name');
+        $channel = Channel::find($channel_name);
+        $start_video_time = $channel->start_video_time;
+        date_default_timezone_set('Europe/Lisbon');
+        $date = new DateTime( 'NOW' );
+        $date2 = new DateTime($start_video_time);
+        $diffSeconds = $date->getTimestamp() - $date2->getTimestamp();
+        return response()->json([
+            'datetime' => $diffSeconds
         ]);
     }
 }
