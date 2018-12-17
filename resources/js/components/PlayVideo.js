@@ -154,7 +154,7 @@ class PlayVideo extends React.Component {
       <div>
         <ul className="videolist ui-sortable ui-sortable-disabled" id="queue">
           {this.state.playlists.map((video,i) => (
-            <li key={i} id={i} className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
+            <li key={i} id={i} className={ i==0 ? "queue_entry queue_temp queue_active" : "queue_entry queue_temp" }><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
               <div className="qe_clear"></div>
               {listButton}
             </li>

@@ -67086,7 +67086,7 @@ var App = function (_Component) {
                     { key: comment.id, className: 'media' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { style: { color: 'green' } },
+                        { style: { color: 'white' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'span',
                             null,
@@ -67397,7 +67397,7 @@ var PlayVideo = function (_React$Component) {
           this.state.playlists.map(function (video, i) {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'li',
-              { key: i, id: i, className: 'queue_entry queue_temp' },
+              { key: i, id: i, className: i == 0 ? "queue_entry queue_temp queue_active" : "queue_entry queue_temp" },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'a',
                 { className: 'qe_title', href: '#', target: '_blank' },
