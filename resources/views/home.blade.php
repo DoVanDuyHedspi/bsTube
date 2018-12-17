@@ -3,6 +3,11 @@
 @section('content')
     <section id="mainpage">
       <div class="container">
+          <div class="col-lg-3 col-md-3">
+              <h3>Enter Channel</h3>
+              <input class="form-control" style="background-color: rgb(26, 26, 26); color: white" id="channelname" type="text" placeholder="Channel Name">
+              <p class="text-muted">New channels can be registered from the <a href="{{ route('my_channels')}}">My Channels</a> page.</p>
+          </div>
         <div class="col-lg-9 col-md-9">
           <h3>Public Channels</h3>
           <table class="table table-bordered table-striped">
@@ -37,11 +42,7 @@
             </tbody>
           </table>
         </div>
-        <div class="col-lg-3 col-md-3">
-          <h3>Enter Channel</h3>
-          <input class="form-control" style="background-color: rgb(26, 26, 26); color: white" id="channelname" type="text" placeholder="Channel Name">
-          <p class="text-muted">New channels can be registered from the <a href="{{ route('my_channels')}}">My Channels</a> page.</p>
-        </div>
+
       </div>
     </section>
 @endsection

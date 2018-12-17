@@ -17,7 +17,7 @@ class App extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.renderComments = this.renderComments.bind(this); 
-        this.renderListMembers = this.renderListMembers.bind(this); 
+        this.renderListMembers = this.renderListMembers.bind(this);
     }
 
     getComments() {
@@ -122,10 +122,11 @@ class App extends Component {
     }
 
     renderComments() {
+        this.scroll();
         return this.state.comments.map(comment => (
             <div key={comment.id} className="media">
-                <div style={{color: 'white'}}>
-                    <span>[{comment.humanCreatedAt}] </span><span>{comment.user.username}: {comment.content}</span>
+                <div>
+                    <span style={{color: 'orange'}}>[{comment.humanCreatedAt}] </span><span style={{color: 'yellow'}}>{comment.user.username}</span> : <span style={{color: 'white'}}>{this.truncate(comment.content, 68)}</span>
                 </div>                                                           
             </div>))
         
@@ -134,12 +135,32 @@ class App extends Component {
     renderListMembers() {
         return this.state.members.map(user => (
           <div key={user.id} className="userlist_item userlist_afk">
-            <span className="glyphicon glyphicon-time"></span>
-            <span className="userlist_op" style={{fontStyle: 'italic'}}>{user.username}</span>
+            <span className="glyphicon glyphicon-time" style={{marginRight: 5}}></span>
+            <span className="userlist_op">{user.username}</span>
           </div>
         ))
     }
 
+    truncate(str, length, ending) {
+        if (length == null) {
+            length = 100;
+        }
+        if (ending == null) {
+            ending = '...';
+        }
+        if (str.length > length) {
+            return str.substring(0, length - ending.length) + ending;
+        } else {
+            return str;
+        }
+    };
+    scroll() {
+        $('#messagebuffer').bind("DOMSubtreeModified",function(){
+            var wtf = $('#messagebuffer');
+            var height = wtf[0].scrollHeight;
+            wtf.scrollTop(height);
+        });
+    }
     render() {
         return (
             <div className="">
@@ -148,10 +169,10 @@ class App extends Component {
                         <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
                         <span className="pointer" id="usercount">{this.state.numberOfMembers} connected users</span>
                     </div>
-                    <div id="userlist" style={{height: 70 + 'vh'}}>
+                    <div id="userlist" style={{height: 75 + 'vh'}}>
                       {this.renderListMembers()}   
                     </div>
-                    <div className="linewrap" id="messagebuffer" style={{height: 70 + 'vh'}}>
+                    <div className="linewrap" id="messagebuffer" style={{height: 75 + 'vh'}}>
                         <div className="server-msg-reconnect">Connected</div>
                         {!this.state.loading ? this.renderComments() : 'Loading'}
                     </div>

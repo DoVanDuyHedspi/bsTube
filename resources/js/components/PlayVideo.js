@@ -250,7 +250,7 @@ class PlayVideo extends React.Component {
   render() {
     const start_video_time = this.state.startTime;
     const opts = {
-      height: '390',
+      height: '500',
       width: '100%',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 1,

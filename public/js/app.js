@@ -68248,26 +68248,33 @@ var App = function (_Component) {
     }, {
         key: 'renderComments',
         value: function renderComments() {
+            var _this5 = this;
+
+            this.scroll();
             return this.state.comments.map(function (comment) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
                     { key: comment.id, className: 'media' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { style: { color: 'white' } },
+                        null,
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'span',
-                            null,
+                            { style: { color: 'orange' } },
                             '[',
                             comment.humanCreatedAt,
                             '] '
                         ),
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'span',
-                            null,
-                            comment.user.username,
-                            ': ',
-                            comment.content
+                            { style: { color: 'yellow' } },
+                            comment.user.username
+                        ),
+                        ' : ',
+                        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                            'span',
+                            { style: { color: 'white' } },
+                            _this5.truncate(comment.content, 68)
                         )
                     )
                 );
@@ -68280,13 +68287,37 @@ var App = function (_Component) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'div',
                     { key: user.id, className: 'userlist_item userlist_afk' },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-time' }),
+                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-time', style: { marginRight: 5 } }),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'span',
-                        { className: 'userlist_op', style: { fontStyle: 'italic' } },
+                        { className: 'userlist_op' },
                         user.username
                     )
                 );
+            });
+        }
+    }, {
+        key: 'truncate',
+        value: function truncate(str, length, ending) {
+            if (length == null) {
+                length = 100;
+            }
+            if (ending == null) {
+                ending = '...';
+            }
+            if (str.length > length) {
+                return str.substring(0, length - ending.length) + ending;
+            } else {
+                return str;
+            }
+        }
+    }, {
+        key: 'scroll',
+        value: function scroll() {
+            $('#messagebuffer').bind("DOMSubtreeModified", function () {
+                var wtf = $('#messagebuffer');
+                var height = wtf[0].scrollHeight;
+                wtf.scrollTop(height);
             });
         }
     }, {
@@ -68311,12 +68342,12 @@ var App = function (_Component) {
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { id: 'userlist', style: { height: 70 + 'vh' } },
+                        { id: 'userlist', style: { height: 75 + 'vh' } },
                         this.renderListMembers()
                     ),
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { className: 'linewrap', id: 'messagebuffer', style: { height: 70 + 'vh' } },
+                        { className: 'linewrap', id: 'messagebuffer', style: { height: 75 + 'vh' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'div',
                             { className: 'server-msg-reconnect' },
@@ -68678,7 +68709,7 @@ var PlayVideo = function (_React$Component) {
     value: function render() {
       var start_video_time = this.state.startTime;
       var opts = {
-        height: '500',
+        height: '390',
         width: '100%',
         playerVars: { // https://developers.google.com/youtube/player_parameters
           autoplay: 1,
