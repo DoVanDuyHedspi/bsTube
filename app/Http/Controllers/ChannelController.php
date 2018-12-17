@@ -8,6 +8,7 @@ use Alaouy\Youtube\Facades\Youtube;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ChangePermissions;
 use App\Events\NextVideo;
+use DateTime;
 
 class ChannelController extends Controller {
 
@@ -62,14 +63,29 @@ class ChannelController extends Controller {
         $playlists = $channel->link;
         $videoIdRemoved = array_shift($playlists);
         $channel->link = $playlists;
+        $channel->start_video_time = new DateTime();
+        // dd($channel->start_video_time);
         $channel->save();
         foreach($playlists as $stt => $videoId) {
             $playlists[$stt] = Youtube::getVideoInfo($videoId);
             $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
         }
-        broadcast(new NextVideo($channel))->toOther();
+        broadcast(new NextVideo($channel))->toOthers();
         return response()->json([
             'newPlaylists' => $playlists
+        ]);
+    }
+
+    public function getStartVideoTime(Request $request) {
+        $channel_name = $request->query('channel_name');
+        $channel = Channel::find($channel_name);
+        $start_video_time = $channel->start_video_time;
+        date_default_timezone_set('Europe/Lisbon');
+        $date = new DateTime( 'NOW' );
+        $date2 = new DateTime($start_video_time);
+        $diffSeconds = $date->getTimestamp() - $date2->getTimestamp();
+        return response()->json([
+            'datetime' => $diffSeconds
         ]);
     }
 }

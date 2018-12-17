@@ -79,8 +79,8 @@ class PlayVideo extends React.Component {
             </li>
           ))}
         </ul>
-        <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
-        </div>
+        {/* <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
+        </div> */}
       </div>
     )
     
@@ -139,12 +139,13 @@ class PlayVideo extends React.Component {
   }
 
   render() {
+    const start_video_time = this.props.startTime;
     const opts = {
       height: '390',
       width: '100%',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 1,
-        // start: 60,
+        start: start_video_time
       }
     };
     const id = this.state.playlists[0] != null ? this.state.playlists[0].id : ''

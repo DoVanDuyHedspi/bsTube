@@ -45982,13 +45982,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var channel_name = document.getElementById('channel_name').value;
+axios.get('/channel/start_video_time', { params: { channel_name: channel_name } }).then(function (res) {
+    var start_video_time = res.data.datetime;
+    console.log(start_video_time);
+    if (document.getElementById('youtube')) {
+        __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__PlayVideo__["a" /* default */], { name: channel_name, startTime: start_video_time }), document.getElementById('youtube'));
+    }
+});
 if (document.getElementById('comment')) {
-    var channel_name = document.getElementById('channel_name').value;
     __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__App__["a" /* default */], { name: channel_name }), document.getElementById('comment'));
-}
-
-if (document.getElementById('youtube')) {
-    __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__PlayVideo__["a" /* default */], { name: channel_name }), document.getElementById('youtube'));
 }
 
 /***/ }),
@@ -67299,20 +67302,6 @@ var PlayVideo = function (_React$Component) {
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'qe_clear' })
             );
           })
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'div',
-          { id: 'plmeta' },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { id: 'plcount' },
-            '4 items'
-          ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { id: 'pllength' },
-            '01:49:57'
-          )
         )
       );
     }
@@ -67376,12 +67365,13 @@ var PlayVideo = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
+      var start_video_time = this.props.startTime;
       var opts = {
         height: '390',
         width: '100%',
         playerVars: { // https://developers.google.com/youtube/player_parameters
-          autoplay: 1
-          // start: 60,
+          autoplay: 1,
+          start: start_video_time
         }
       };
       var id = this.state.playlists[0] != null ? this.state.playlists[0].id : '';
