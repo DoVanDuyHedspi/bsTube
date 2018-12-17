@@ -16,12 +16,19 @@ class PlayVideo extends React.Component {
     this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
     this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
     this._nextVideo = this._nextVideo.bind(this);
+    this.handlePlayNewVideo = this.handlePlayNewVideo.bind(this);
+    this.playNewVideo = this.playNewVideo.bind(this);
+    this.queueNext = this.queueNext.bind(this);
+    this.handleQueueNext = this.handleQueueNext.bind(this);
+    this.handleDeleteVideo = this.handleDeleteVideo.bind(this);
+    this.deleteVideo = this.deleteVideo.bind(this);
   }
 
   getPlaylist() {
     axios.get('/channel/playlist', {params: {channel_name: this.props.name}}).then((
         response
     ) => {
+            console.log(response.data.playlists);
             this.setState({
                 playlists: [...response.data.playlists]
             });
@@ -49,10 +56,6 @@ class PlayVideo extends React.Component {
     )
   }
 
-  getPermissionsControll() {
-    
-  }
-
   componentWillMount() {
     this.getPlaylist();
     this.getPermissionsStatus();
@@ -71,20 +74,92 @@ class PlayVideo extends React.Component {
             startTime: 0  
           });
         })
-}
+        .listen('PlayNewVideo', (e) => {
+          this.playNewVideo(e.id);
+        })
+        .listen('QueueNext', (e) => {
+          this.queueNext(e.index);
+        })
+        .listen('DeleteVideo', (e) => {
+          this.deleteVideo(e.index);
+        })
+  }
+
+  handlePlayNewVideo(event) {
+    var id = event.target.parentNode.parentNode.id;
+    if(id != 0) {
+      this.playNewVideo(id);
+      axios.put('/channel/playNewVideo',{id: id, channel_name: this.props.name})
+    } 
+  }
+
+  playNewVideo(index) {
+    var playlists = this.state.playlists;
+    playlists[0] = playlists[index];
+    playlists.splice(index, 1);
+    this.setState({
+      playlists: playlists,
+      startTime: 0
+    });
+  }
+
+  handleQueueNext(event) {
+    var id = event.target.parentNode.parentNode.id;
+    if(id !=0 && id != 1) {
+      this.queueNext(id);
+      axios.put('/channel/queueNext',{id: id, channel_name: this.props.name});
+    }  
+  }
+
+  queueNext(index) {
+    var playlists = this.state.playlists;
+    var video = playlists[index];
+    for(var i=index; i>1 ; i--) {
+      playlists[i]=playlists[i-1];
+    }
+    playlists[1] = video;
+    this.setState({
+      playlists: playlists
+    });
+  }
+
+  handleDeleteVideo(event) {
+    var id = event.target.parentNode.parentNode.id;
+    if(id !=0) {
+      this.deleteVideo(id);
+      axios.put('/channel/deleteVideo',{id: id, channel_name: this.props.name});
+    }  
+  }
+
+  deleteVideo(index) {
+    var playlists = this.state.playlists;
+    playlists.splice(index, 1);
+    this.setState({
+      playlists: playlists
+    });
+  }
 
   renderPlaylist() {
+    let listButton
+    if (this.state.isMaster) {
+      listButton = <div>
+                    <button className="btn btn-xs btn-default" onClick={this.handlePlayNewVideo}><span className="glyphicon glyphicon-play"></span>Play</button>
+                    <button className="btn btn-xs btn-default" onClick={this.handleQueueNext}><span className="glyphicon glyphicon-share-alt"></span>Queue Next</button>
+                    <button className="btn btn-xs btn-default" onClick={this.handleDeleteVideo}><span className="glyphicon glyphicon-trash"></span>Delete</button>
+                  </div>
+    } else {
+      listButton = ''
+    }
     return (
       <div>
         <ul className="videolist ui-sortable ui-sortable-disabled" id="queue">
-          {this.state.playlists.map(video => (
-            <li className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
+          {this.state.playlists.map((video,i) => (
+            <li key={i} id={i} className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
               <div className="qe_clear"></div>
+              {listButton}
             </li>
           ))}
         </ul>
-        {/* <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
-        </div> */}
       </div>
     )
     
