@@ -6,6 +6,7 @@ class PlayVideo extends React.Component {
     super(props);
     this.state = {
       playlists: [],
+      newLink: '',
       ableAddLink: 1,
       isMaster: false,
       startTime: this.props.startTime
@@ -13,7 +14,9 @@ class PlayVideo extends React.Component {
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
     this.renderButtonPermissions = this.renderButtonPermissions.bind(this);
+    this.handleChangeLink = this.handleChangeLink.bind(this);
     this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
+    this.handleAddLink = this.handleAddLink.bind(this);
     this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
     this._nextVideo = this._nextVideo.bind(this);
     this.handlePlayNewVideo = this.handlePlayNewVideo.bind(this);
@@ -73,6 +76,10 @@ class PlayVideo extends React.Component {
             playlists: newPlaylists,
             startTime: 0  
           });
+        })
+        .listen('AddLink', (e)=> {
+          const newPlaylists = e.playlists;
+          this.setState({playlists: newPlaylists});
         })
         .listen('PlayNewVideo', (e) => {
           this.playNewVideo(e.id);
@@ -179,6 +186,28 @@ class PlayVideo extends React.Component {
 
   }
 
+  //Add link
+  handleAddLink(e) {
+    axios
+        .post('/channel/add_link', {
+          channel_name: this.props.name,
+          newLink: this.state.newLink,
+          type: e.target.id
+        })
+        .then(response => {
+          this.setState({
+              playlists: response.data.newPlaylists,
+              newLink: ''
+          })
+        });
+  }
+
+  handleChangeLink(e) {  
+    this.setState({
+        newLink: e.target.value
+    })
+  }
+
   renderButtonPermissions() {
     if(this.state.ableAddLink == 1){
       return (
@@ -279,9 +308,16 @@ class PlayVideo extends React.Component {
               <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="addfromurl" aria-expanded="false" style={{height: 88+ 'px'}}>
                 <div className="vertical-spacer"></div>
                 <div className="input-group">
-                  <input className="form-control" id="library_query" type="text" placeholder="Search query"></input>
-                  <span className="input-group-btn"><button className="btn btn-default" id="next">Next</button></span>
-                  <span className="input-group-btn"><button className="btn btn-default" id="adEnd">At end</button></span>
+                  <input 
+                      className="form-control" 
+                      id="library_query" 
+                      type="text"
+                      value={this.state.newLink}
+                      onChange={this.handleChangeLink}
+                      placeholder="Add link">
+                  </input>
+                  <span className="input-group-btn"><button className="btn btn-default" id="next" onClick={this.handleAddLink}>Next</button></span>
+                  <span className="input-group-btn"><button className="btn btn-default" id="atEnd" onClick={this.handleAddLink}>At end</button></span>
                 </div>
                 <div className="checkbox">
                   <label>

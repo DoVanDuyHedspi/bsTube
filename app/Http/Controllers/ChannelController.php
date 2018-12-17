@@ -8,6 +8,7 @@ use Alaouy\Youtube\Facades\Youtube;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ChangePermissions;
 use App\Events\NextVideo;
+use App\Events\AddLink;
 use App\Events\PlayNewVideo;
 use App\Events\QueueNext;
 use App\Events\DeleteVideo;
@@ -81,6 +82,35 @@ class ChannelController extends Controller {
             $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
         }
         broadcast(new NextVideo($channel))->toOthers();
+        return response()->json([
+            'newPlaylists' => $playlists
+        ]);
+    }
+
+    public function addLink(Request $request) {
+        $channel = Channel::find($request->channel_name);
+        $newLink = $request->newLink;
+        $playlists = $channel->link;
+        if($request->type == "atEnd"){
+            $addLink = array_push($playlists, $newLink);
+        } else {
+            $addLink = array_splice( $playlists, 1, 0, $newLink );
+        }
+        $channel->link = $playlists;
+        $channel->save();
+        foreach($playlists as $stt => $videoId) {
+            $youtube = Youtube::getVideoInfo($videoId);
+            $playlists[$stt] = array(
+                "id" => $videoId,
+                "snippet" => [
+                    "title" => $youtube->snippet->title
+                ],
+                "contentDetails" => [
+                    "duration" => $channel->covtime($youtube->contentDetails->duration)
+                ]
+            );
+        }
+        broadcast(new AddLink($channel, $playlists))->toOthers();
         return response()->json([
             'newPlaylists' => $playlists
         ]);

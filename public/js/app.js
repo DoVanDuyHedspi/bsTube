@@ -67220,6 +67220,7 @@ var PlayVideo = function (_React$Component) {
 
     _this.state = {
       playlists: [],
+      newLink: '',
       ableAddLink: 1,
       isMaster: false,
       startTime: _this.props.startTime
@@ -67227,7 +67228,9 @@ var PlayVideo = function (_React$Component) {
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
     _this.renderButtonPermissions = _this.renderButtonPermissions.bind(_this);
+    _this.handleChangeLink = _this.handleChangeLink.bind(_this);
     _this.handleCLickButtonPermissions = _this.handleCLickButtonPermissions.bind(_this);
+    _this.handleAddLink = _this.handleAddLink.bind(_this);
     _this.renderButtonAddLink = _this.renderButtonAddLink.bind(_this);
     _this._nextVideo = _this._nextVideo.bind(_this);
     _this.handlePlayNewVideo = _this.handlePlayNewVideo.bind(_this);
@@ -67290,6 +67293,9 @@ var PlayVideo = function (_React$Component) {
           playlists: newPlaylists,
           startTime: 0
         });
+      }).listen('AddLink', function (e) {
+        var newPlaylists = e.playlists;
+        _this4.setState({ playlists: newPlaylists });
       }).listen('PlayNewVideo', function (e) {
         _this4.playNewVideo(e.id);
       }).listen('QueueNext', function (e) {
@@ -67429,6 +67435,32 @@ var PlayVideo = function (_React$Component) {
         });
       });
     }
+
+    //Add link
+
+  }, {
+    key: 'handleAddLink',
+    value: function handleAddLink(e) {
+      var _this6 = this;
+
+      axios.post('/channel/add_link', {
+        channel_name: this.props.name,
+        newLink: this.state.newLink,
+        type: e.target.id
+      }).then(function (response) {
+        _this6.setState({
+          playlists: response.data.newPlaylists,
+          newLink: ''
+        });
+      });
+    }
+  }, {
+    key: 'handleChangeLink',
+    value: function handleChangeLink(e) {
+      this.setState({
+        newLink: e.target.value
+      });
+    }
   }, {
     key: 'renderButtonPermissions',
     value: function renderButtonPermissions() {
@@ -67462,11 +67494,11 @@ var PlayVideo = function (_React$Component) {
   }, {
     key: '_nextVideo',
     value: function _nextVideo() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this.state.isMaster) {
         axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
-          _this6.setState({
+          _this7.setState({
             playlists: res.data.newPlaylists,
             startTime: 0
           });
@@ -67603,13 +67635,19 @@ var PlayVideo = function (_React$Component) {
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                   'div',
                   { className: 'input-group' },
-                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', { className: 'form-control', id: 'library_query', type: 'text', placeholder: 'Search query' }),
+                  __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('input', {
+                    className: 'form-control',
+                    id: 'library_query',
+                    type: 'text',
+                    value: this.state.newLink,
+                    onChange: this.handleChangeLink,
+                    placeholder: 'Add link' }),
                   __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'span',
                     { className: 'input-group-btn' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                       'button',
-                      { className: 'btn btn-default', id: 'next' },
+                      { className: 'btn btn-default', id: 'next', onClick: this.handleAddLink },
                       'Next'
                     )
                   ),
@@ -67618,7 +67656,7 @@ var PlayVideo = function (_React$Component) {
                     { className: 'input-group-btn' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                       'button',
-                      { className: 'btn btn-default', id: 'adEnd' },
+                      { className: 'btn btn-default', id: 'atEnd', onClick: this.handleAddLink },
                       'At end'
                     )
                   )
