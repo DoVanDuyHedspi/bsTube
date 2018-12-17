@@ -67086,7 +67086,7 @@ var App = function (_Component) {
                     { key: comment.id, className: 'media' },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                         'div',
-                        { style: { color: 'green' } },
+                        { style: { color: 'white' } },
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                             'span',
                             null,
@@ -67233,6 +67233,12 @@ var PlayVideo = function (_React$Component) {
     _this.handleAddLink = _this.handleAddLink.bind(_this);
     _this.renderButtonAddLink = _this.renderButtonAddLink.bind(_this);
     _this._nextVideo = _this._nextVideo.bind(_this);
+    _this.handlePlayNewVideo = _this.handlePlayNewVideo.bind(_this);
+    _this.playNewVideo = _this.playNewVideo.bind(_this);
+    _this.queueNext = _this.queueNext.bind(_this);
+    _this.handleQueueNext = _this.handleQueueNext.bind(_this);
+    _this.handleDeleteVideo = _this.handleDeleteVideo.bind(_this);
+    _this.deleteVideo = _this.deleteVideo.bind(_this);
     return _this;
   }
 
@@ -67242,6 +67248,7 @@ var PlayVideo = function (_React$Component) {
       var _this2 = this;
 
       axios.get('/channel/playlist', { params: { channel_name: this.props.name } }).then(function (response) {
+        console.log(response.data.playlists);
         _this2.setState({
           playlists: [].concat(_toConsumableArray(response.data.playlists))
         });
@@ -67267,9 +67274,6 @@ var PlayVideo = function (_React$Component) {
       });
     }
   }, {
-    key: 'getPermissionsControll',
-    value: function getPermissionsControll() {}
-  }, {
     key: 'componentWillMount',
     value: function componentWillMount() {
       this.getPlaylist();
@@ -67292,21 +67296,114 @@ var PlayVideo = function (_React$Component) {
       }).listen('AddLink', function (e) {
         var newPlaylists = e.playlists;
         _this4.setState({ playlists: newPlaylists });
+      }).listen('PlayNewVideo', function (e) {
+        _this4.playNewVideo(e.id);
+      }).listen('QueueNext', function (e) {
+        _this4.queueNext(e.index);
+      }).listen('DeleteVideo', function (e) {
+        _this4.deleteVideo(e.index);
+      });
+    }
+  }, {
+    key: 'handlePlayNewVideo',
+    value: function handlePlayNewVideo(event) {
+      var id = event.target.parentNode.parentNode.id;
+      if (id != 0) {
+        this.playNewVideo(id);
+        axios.put('/channel/playNewVideo', { id: id, channel_name: this.props.name });
+      }
+    }
+  }, {
+    key: 'playNewVideo',
+    value: function playNewVideo(index) {
+      var playlists = this.state.playlists;
+      playlists[0] = playlists[index];
+      playlists.splice(index, 1);
+      this.setState({
+        playlists: playlists,
+        startTime: 0
+      });
+    }
+  }, {
+    key: 'handleQueueNext',
+    value: function handleQueueNext(event) {
+      var id = event.target.parentNode.parentNode.id;
+      if (id != 0 && id != 1) {
+        this.queueNext(id);
+        axios.put('/channel/queueNext', { id: id, channel_name: this.props.name });
+      }
+    }
+  }, {
+    key: 'queueNext',
+    value: function queueNext(index) {
+      var playlists = this.state.playlists;
+      var video = playlists[index];
+      for (var i = index; i > 1; i--) {
+        playlists[i] = playlists[i - 1];
+      }
+      playlists[1] = video;
+      this.setState({
+        playlists: playlists
+      });
+    }
+  }, {
+    key: 'handleDeleteVideo',
+    value: function handleDeleteVideo(event) {
+      var id = event.target.parentNode.parentNode.id;
+      if (id != 0) {
+        this.deleteVideo(id);
+        axios.put('/channel/deleteVideo', { id: id, channel_name: this.props.name });
+      }
+    }
+  }, {
+    key: 'deleteVideo',
+    value: function deleteVideo(index) {
+      var playlists = this.state.playlists;
+      playlists.splice(index, 1);
+      this.setState({
+        playlists: playlists
       });
     }
   }, {
     key: 'renderPlaylist',
     value: function renderPlaylist() {
+      var listButton = void 0;
+      if (this.state.isMaster) {
+        listButton = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'div',
+          null,
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { className: 'btn btn-xs btn-default', onClick: this.handlePlayNewVideo },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-play' }),
+            'Play'
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { className: 'btn btn-xs btn-default', onClick: this.handleQueueNext },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-share-alt' }),
+            'Queue Next'
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { className: 'btn btn-xs btn-default', onClick: this.handleDeleteVideo },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-trash' }),
+            'Delete'
+          )
+        );
+      } else {
+        listButton = '';
+      }
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'ul',
           { className: 'videolist ui-sortable ui-sortable-disabled', id: 'queue' },
-          this.state.playlists.map(function (video) {
+          this.state.playlists.map(function (video, i) {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'li',
-              { className: 'queue_entry queue_temp' },
+              { key: i, id: i, className: i == 0 ? "queue_entry queue_temp queue_active" : "queue_entry queue_temp" },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'a',
                 { className: 'qe_title', href: '#', target: '_blank' },
@@ -67317,7 +67414,8 @@ var PlayVideo = function (_React$Component) {
                 { className: 'qe_time' },
                 video.contentDetails.duration
               ),
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'qe_clear' })
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('div', { className: 'qe_clear' }),
+              listButton
             );
           })
         )

@@ -26,5 +26,8 @@ Route::group(['middleware' => ['auth']], function() {
   Route::get('/channel/permissions', 'ChannelController@getStatus');
   Route::post('/channel/change_permissions','ChannelController@changePermissions');
   Route::put('/channel/removeFirstVideo', 'ChannelController@removeFirstVideo');
-  Route::post('/channel/add_link', 'ChannelController@addLink');
+  Route::post('/channel/add_link', 'ChannelController@addLink');  
+  Route::put('/channel/playNewVideo', 'ChannelController@playNewVideo');
+  Route::put('/channel/queueNext', 'ChannelController@queueNext');
+  Route::put('/channel/deleteVideo', 'ChannelController@deleteVideo');
 });
