@@ -87,19 +87,25 @@ class ChannelController extends Controller {
         ]);
     }
 
-    public function addLink(Request $request) {
+    public function addLink(Request $request, Channel $channel) {
         $channel = Channel::find($request->channel_name);
-        $newLink = $request->newLink;
+        $newLink = $channel->getYoutubeIdFromUrl($request->newLink);
+        // $newLink = $request->newLink;
         $playlists = $channel->link;
+        if(count($playlists) == 0 ) {
+            $channel->start_video_time = new DateTime();
+        }
         if($request->type == "atEnd"){
             $addLink = array_push($playlists, $newLink);
         } else {
             $addLink = array_splice( $playlists, 1, 0, $newLink );
         }
         $channel->link = $playlists;
+        
         $channel->save();
         foreach($playlists as $stt => $videoId) {
             $youtube = Youtube::getVideoInfo($videoId);
+            // dd($youtube);
             $playlists[$stt] = array(
                 "id" => $videoId,
                 "snippet" => [
@@ -133,8 +139,10 @@ class ChannelController extends Controller {
         $id = $request->id;
         $channel = Channel::find($request->channel_name);
         $playlists = $channel->link;
+        $playlists[0]=$playlists[$id];
         unset($playlists[$id]);
         $channel->link = $playlists;
+        $channel->start_video_time = new DateTime('NOW');
         $channel->save();
         broadcast(new PlayNewVideo($id,$channel))->toOthers();
 
