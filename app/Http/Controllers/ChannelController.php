@@ -7,6 +7,7 @@ use App\Channel;
 use Alaouy\Youtube\Facades\Youtube;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ChangePermissions;
+use App\Events\NextVideo;
 
 class ChannelController extends Controller {
 
@@ -53,6 +54,22 @@ class ChannelController extends Controller {
         broadcast(new ChangePermissions($channel->status, $channel))->toOthers();
         return response()->json([
             'status' => $channel->status
+        ]);
+    }
+
+    public function removeFirstVideo(Request $request) {
+        $channel = Channel::find($request->channel_name);
+        $playlists = $channel->link;
+        $videoIdRemoved = array_shift($playlists);
+        $channel->link = $playlists;
+        $channel->save();
+        foreach($playlists as $stt => $videoId) {
+            $playlists[$stt] = Youtube::getVideoInfo($videoId);
+            $playlists[$stt]->contentDetails->duration = $channel->covtime($playlists[$stt]->contentDetails->duration);
+        }
+        broadcast(new NextVideo($channel))->toOther();
+        return response()->json([
+            'newPlaylists' => $playlists
         ]);
     }
 }

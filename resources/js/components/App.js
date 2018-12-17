@@ -29,7 +29,6 @@ class App extends Component {
                     comments: [...response.data.comments],
                     loading: false
                 });
-                console.log(response)
             }
             
         );
@@ -53,7 +52,6 @@ class App extends Component {
                 });
             })
             .joining((user) => {
-              console.log(user.username);
               this.setState({
                 members: [...this.state.members,user],
                 numberOfMembers: this.state.numberOfMembers+1
@@ -68,7 +66,6 @@ class App extends Component {
                 });
             })
             .listen('CommentCreated', (e) => {
-                console.log(e);
                 this.setState({comments: [...this.state.comments, e.comment]})
             })
     }
@@ -109,7 +106,6 @@ class App extends Component {
     }
 
     handleKeyPress(e) {
-        console.log(e)
         if(e.key == 'Enter') {
             this.handleSubmit(e)
         }

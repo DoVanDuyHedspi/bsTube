@@ -14,6 +14,7 @@ class PlayVideo extends React.Component {
     this.renderButtonPermissions = this.renderButtonPermissions.bind(this);
     this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
     this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
+    this._nextVideo = this._nextVideo.bind(this);
   }
 
   getPlaylist() {
@@ -23,13 +24,12 @@ class PlayVideo extends React.Component {
             this.setState({
                 playlists: [...response.data.playlists]
             });
-            console.log(response) 
         }
         
     )
   }
 
-  getPermissions() {
+  getPermissionsStatus() {
     axios.get('/channel/permissions', {params: {channel_name: this.props.name}}).then((
       response
     ) => {
@@ -48,16 +48,24 @@ class PlayVideo extends React.Component {
     )
   }
 
+  getPermissionsControll() {
+    
+  }
+
   componentWillMount() {
     this.getPlaylist();
-    this.getPermissions();
+    this.getPermissionsStatus();
   }
 
   componentDidMount() {
     Echo.join(`channel.${this.props.name}`)
         .listen('ChangePermissions', (e) => {
-          console.log(e);
           this.setState({ableAddLink: e.status})
+        })
+        .listen('NextVideo', (e) => {
+          const newPlaylists = this.state.playlists;
+          newPlaylists.shift();
+          this.setState({playlists: newPlaylists});
         })
 }
 
@@ -66,14 +74,10 @@ class PlayVideo extends React.Component {
       <div>
         <ul className="videolist ui-sortable ui-sortable-disabled" id="queue">
           {this.state.playlists.map(video => (
-            <li key={video.id} className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
+            <li className="queue_entry queue_temp"><a className="qe_title" href="#" target="_blank">{video.snippet.title}</a><span className="qe_time">{video.contentDetails.duration}</span>
               <div className="qe_clear"></div>
             </li>
           ))}
-          {/* <li className="queue_entry queue_temp queue_active"><a className="qe_title" href="#" target="_blank">First stream media</a><span className="qe_time">00:00</span>
-            <div className="qe_clear"></div>
-          </li> */}
-          
         </ul>
         <div id="plmeta"><span id="plcount">4 items</span><span id="pllength">01:49:57</span>
         </div>
@@ -104,7 +108,7 @@ class PlayVideo extends React.Component {
       )
     }else if(this.state.ableAddLink != 1){
       return (
-        <button onClick={this.handleCLickButtonPermissions} className="btn btn-sm btn-danger" id="qlockbtn" title="Playlist Unlocked" disabled={this.state.isMaster ? '' : 'disabled'}><span className="glyphicon glyphicon-remove"></span>
+        <button onClick={this.handleCLickButtonPermissions} className="btn btn-sm btn-danger" id="qlockbtn" title="Playlist Unlocked" disabled={this.state.isMaster ? '' : 'disabled'}><span className="glyphicon glyphicon-lock"></span>
         </button>
       )
     }
@@ -121,22 +125,38 @@ class PlayVideo extends React.Component {
     }
   }
 
+
+
+  _nextVideo() {
+    if(this.state.isMaster){
+      axios.put('/channel/removeFirstVideo', {channel_name: this.props.name})
+          .then(res => {
+            this.setState({
+              playlists: res.data.newPlaylists,
+            });
+          })
+    }
+  }
+
   render() {
     const opts = {
       height: '390',
       width: '100%',
       playerVars: { // https://developers.google.com/youtube/player_parameters
-        autoplay: 1
+        autoplay: 1,
+        // start: 60,
       }
     };
+    const id = this.state.playlists[0] != null ? this.state.playlists[0].id : ''
  
-    return (
+    return (      
       <div id="controlsrow">
         <div id="videowrap">
           <p id="videowrap-header" className="text-center">Video's name</p>
           <YouTube
-            videoId="2g811Eo7K8U"
+            videoId={id}
             opts={opts}
+            onEnd={this._nextVideo}
             // onReady={this._onReady}
           />
         </div>
@@ -145,10 +165,6 @@ class PlayVideo extends React.Component {
             <button className="btn btn-sm btn-default " id="showsearch" title="Search for a video" data-toggle="collapse" data-target="#searchcontrol" aria-expanded="true" aria-pressed="true"><span className="glyphicon glyphicon-search"></span>
             </button>
             {this.renderButtonAddLink()}
-            {/* <button className="btn btn-sm btn-default collapsed" id="showplaylistmanager" title="Manage playlists" data-toggle="collapse" data-target="#playlistmanager" aria-expanded="false" aria-pressed="false"><span className="glyphicon glyphicon-list"></span>
-            </button> */}
-            {/* <button className="btn btn-sm btn-success" id="qlockbtn" title="Playlist Unlocked" disabled="disabled"><span className="glyphicon glyphicon-ok"></span>
-            </button> */}
             {this.renderButtonPermissions()}
           </div>
           <div className="btn-group pull-right" id="videocontrols">
@@ -193,27 +209,6 @@ class PlayVideo extends React.Component {
                 </div>
                 <div id="addfromurl-queue"></div>
               </div>
-              {/* <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="customembed" aria-expanded="false" style={{height: 206+ 'px'}}>
-                <div className="vertical-spacer"></div>
-                <div className="checkbox">
-                  <label>
-                    <input className="add-temp" type="checkbox"></input><span>Add as temporary</span>
-                  </label>
-                </div>
-              </div> */}
-              {/* <div className="plcontrol-collapse col-lg-12 col-md-12 collapse" id="playlistmanager" aria-expanded="false" style={{height: 0 + 'px'}}>
-                <div className="vertical-spacer"></div>
-                <div className="input-group">
-                  <input className="form-control" id="userpl_name" type="text" placeholder="Playlist Name"></input>
-                  <span className="input-group-btn"><button className="btn btn-default" id="userpl_save">Save</button></span>
-                </div>
-                <div className="checkbox">
-                  <label>
-                    <input className="add-temp" type="checkbox" defaultChecked></input><span>Add as temporary</span>
-                  </label>
-                </div>
-                <ul className="videolist" id="userpl_list"></ul>
-              </div> */}
               <div className="col-lg-12 col-md-12" id="queuefail">
                 <div className="vertical-spacer"></div>
               </div>
@@ -228,7 +223,6 @@ class PlayVideo extends React.Component {
   }
  
   _onReady(event) {
-    // access to player in all event handlers via event.target
     event.target.pauseVideo();
   }
 }
