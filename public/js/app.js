@@ -66983,7 +66983,6 @@ var App = function (_Component) {
                     comments: [].concat(_toConsumableArray(response.data.comments)),
                     loading: false
                 });
-                console.log(response);
             });
         }
     }, {
@@ -67008,7 +67007,6 @@ var App = function (_Component) {
                     numberOfMembers: users.length
                 });
             }).joining(function (user) {
-                console.log(user.username);
                 _this3.setState({
                     members: [].concat(_toConsumableArray(_this3.state.members), [user]),
                     numberOfMembers: _this3.state.numberOfMembers + 1
@@ -67021,7 +67019,6 @@ var App = function (_Component) {
                     numberOfMembers: _this3.state.numberOfMembers - 1
                 });
             }).listen('CommentCreated', function (e) {
-                console.log(e);
                 _this3.setState({ comments: [].concat(_toConsumableArray(_this3.state.comments), [e.comment]) });
             });
         }
@@ -67065,7 +67062,6 @@ var App = function (_Component) {
     }, {
         key: 'handleKeyPress',
         value: function handleKeyPress(e) {
-            console.log(e);
             if (e.key == 'Enter') {
                 this.handleSubmit(e);
             }
@@ -67221,6 +67217,7 @@ var PlayVideo = function (_React$Component) {
     _this.renderButtonPermissions = _this.renderButtonPermissions.bind(_this);
     _this.handleCLickButtonPermissions = _this.handleCLickButtonPermissions.bind(_this);
     _this.renderButtonAddLink = _this.renderButtonAddLink.bind(_this);
+    _this._nextVideo = _this._nextVideo.bind(_this);
     return _this;
   }
 
@@ -67233,12 +67230,11 @@ var PlayVideo = function (_React$Component) {
         _this2.setState({
           playlists: [].concat(_toConsumableArray(response.data.playlists))
         });
-        console.log(response);
       });
     }
   }, {
-    key: 'getPermissions',
-    value: function getPermissions() {
+    key: 'getPermissionsStatus',
+    value: function getPermissionsStatus() {
       var _this3 = this;
 
       axios.get('/channel/permissions', { params: { channel_name: this.props.name } }).then(function (response) {
@@ -67256,10 +67252,13 @@ var PlayVideo = function (_React$Component) {
       });
     }
   }, {
+    key: 'getPermissionsControll',
+    value: function getPermissionsControll() {}
+  }, {
     key: 'componentWillMount',
     value: function componentWillMount() {
       this.getPlaylist();
-      this.getPermissions();
+      this.getPermissionsStatus();
     }
   }, {
     key: 'componentDidMount',
@@ -67267,8 +67266,11 @@ var PlayVideo = function (_React$Component) {
       var _this4 = this;
 
       Echo.join('channel.' + this.props.name).listen('ChangePermissions', function (e) {
-        console.log(e);
         _this4.setState({ ableAddLink: e.status });
+      }).listen('NextVideo', function (e) {
+        var newPlaylists = _this4.state.playlists;
+        newPlaylists.shift();
+        _this4.setState({ playlists: newPlaylists });
       });
     }
   }, {
@@ -67283,7 +67285,7 @@ var PlayVideo = function (_React$Component) {
           this.state.playlists.map(function (video) {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'li',
-              { key: video.id, className: 'queue_entry queue_temp' },
+              { className: 'queue_entry queue_temp' },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'a',
                 { className: 'qe_title', href: '#', target: '_blank' },
@@ -67341,7 +67343,7 @@ var PlayVideo = function (_React$Component) {
         return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'button',
           { onClick: this.handleCLickButtonPermissions, className: 'btn btn-sm btn-danger', id: 'qlockbtn', title: 'Playlist Unlocked', disabled: this.state.isMaster ? '' : 'disabled' },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-remove' })
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-lock' })
         );
       }
     }
@@ -67359,6 +67361,19 @@ var PlayVideo = function (_React$Component) {
       }
     }
   }, {
+    key: '_nextVideo',
+    value: function _nextVideo() {
+      var _this6 = this;
+
+      if (this.state.isMaster) {
+        axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
+          _this6.setState({
+            playlists: res.data.newPlaylists
+          });
+        });
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var opts = {
@@ -67366,8 +67381,10 @@ var PlayVideo = function (_React$Component) {
         width: '100%',
         playerVars: { // https://developers.google.com/youtube/player_parameters
           autoplay: 1
+          // start: 60,
         }
       };
+      var id = this.state.playlists[0] != null ? this.state.playlists[0].id : '';
 
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
@@ -67381,8 +67398,9 @@ var PlayVideo = function (_React$Component) {
             'Video\'s name'
           ),
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_youtube__["a" /* default */], {
-            videoId: '2g811Eo7K8U',
-            opts: opts
+            videoId: id,
+            opts: opts,
+            onEnd: this._nextVideo
             // onReady={this._onReady}
           })
         ),
@@ -67538,7 +67556,6 @@ var PlayVideo = function (_React$Component) {
   }, {
     key: '_onReady',
     value: function _onReady(event) {
-      // access to player in all event handlers via event.target
       event.target.pauseVideo();
     }
   }]);
