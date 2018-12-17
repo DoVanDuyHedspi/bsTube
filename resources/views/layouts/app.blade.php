@@ -51,6 +51,6 @@
             @yield('content')
         </div>
     </div>
-    @include('layouts._footer_app')
+
 </body>
 </html>

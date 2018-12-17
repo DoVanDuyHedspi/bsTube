@@ -7,13 +7,20 @@ body,html {
   margin:0 auto -39px;
   padding:0 0 39px;
 }
-#footer {
+.footer {
     background-color: rgb(51, 51, 51) !important;
     height: 39px !important;
+    margin-bottom: 0px !important;
+}
+.nav-bar-footer {
+    background-color: rgb(51, 51, 51) !important;
+    height: 39px !important;
+    margin-bottom: 0px !important;
 }
 .container .credit {
-  margin: 8px auto;
+  margin: 0px auto;
   text-align: center;
+    height: 39px;
 }
 #loginform>.form-group {
   margin-right:5px;

@@ -191,7 +191,9 @@ body {
   }
 
   .userlist_op {
-    color: #0a0!important;
+        color: yellow!important;
+      font-size: 14px;
+      font-style: italic;
   }
 
   .userlist_guest {
