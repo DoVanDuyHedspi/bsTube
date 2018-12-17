@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
-<section id="mainpage" style="margin-top: 5%">
+<section id="mainpage">
     @if(session()->has('message'))
       <div class="alert alert-success">
           {{ session()->get('message') }}
@@ -20,7 +20,7 @@
             @foreach($my_channels as $channel)
               <tr>
                   <th>
-                    <a href="{{ url('/')}}" style="margin-left: 5px">{{$channel->name}}</a>
+                    <a href="{{ route('channels', $channel->name) }}" style="margin-left: 5px">{{$channel->name}}</a>
                     <form class="delete" action="{{route('destroy_channel', $channel->name)}}" method="POST"
                     onsubmit="return confirm('Are you sure you want to delete {{$channel->name}}?  This cannot be undone');">
                         <input type="hidden" name="_method" value="DELETE">
@@ -52,8 +52,8 @@
             <input type="hidden" name="action" value="new_channel">
             <div class="form-group">
             <label class="control-label" for="channelname">Channel URL</label>
-            <div class="input-group"><span class="input-group-addon">https://bstube.com</span>
-                <input class="form-control" id="channelname" type="text" name="name" maxlength="30" onkeyup="checkChannel()">
+            <div class="input-group"><span class="input-group-addon"  style="margin-right: 5px; padding-top: 8px">https://bstube.com/</span>
+                <input class="form-control" style="background-color: rgb(26, 26, 26); color: white" id="channelname" type="text" name="name" maxlength="30" onkeyup="checkChannel()" placeholder="Channel ID">
             </div>
             <p class="text-danger pull-right" id="validate_channel"></p>
             </div>
