@@ -67221,7 +67221,8 @@ var PlayVideo = function (_React$Component) {
     _this.state = {
       playlists: [],
       ableAddLink: 1,
-      isMaster: false
+      isMaster: false,
+      startTime: _this.props.startTime
     };
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
@@ -67281,7 +67282,10 @@ var PlayVideo = function (_React$Component) {
       }).listen('NextVideo', function (e) {
         var newPlaylists = _this4.state.playlists;
         newPlaylists.shift();
-        _this4.setState({ playlists: newPlaylists });
+        _this4.setState({
+          playlists: newPlaylists,
+          startTime: 0
+        });
       });
     }
   }, {
@@ -67365,7 +67369,8 @@ var PlayVideo = function (_React$Component) {
       if (this.state.isMaster) {
         axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
           _this6.setState({
-            playlists: res.data.newPlaylists
+            playlists: res.data.newPlaylists,
+            startTime: 0
           });
         });
       }
@@ -67373,7 +67378,7 @@ var PlayVideo = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var start_video_time = this.props.startTime;
+      var start_video_time = this.state.startTime;
       var opts = {
         height: '390',
         width: '100%',

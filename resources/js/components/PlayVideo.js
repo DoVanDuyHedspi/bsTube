@@ -8,6 +8,7 @@ class PlayVideo extends React.Component {
       playlists: [],
       ableAddLink: 1,
       isMaster: false,
+      startTime: this.props.startTime
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
@@ -65,7 +66,10 @@ class PlayVideo extends React.Component {
         .listen('NextVideo', (e) => {
           const newPlaylists = this.state.playlists;
           newPlaylists.shift();
-          this.setState({playlists: newPlaylists});
+          this.setState({
+            playlists: newPlaylists,
+            startTime: 0  
+          });
         })
 }
 
@@ -133,13 +137,14 @@ class PlayVideo extends React.Component {
           .then(res => {
             this.setState({
               playlists: res.data.newPlaylists,
+              startTime: 0
             });
           })
     }
   }
 
   render() {
-    const start_video_time = this.props.startTime;
+    const start_video_time = this.state.startTime;
     const opts = {
       height: '390',
       width: '100%',
