@@ -68709,7 +68709,7 @@ var PlayVideo = function (_React$Component) {
     value: function render() {
       var start_video_time = this.state.startTime;
       var opts = {
-        height: '390',
+        height: '500',
         width: '100%',
         playerVars: { // https://developers.google.com/youtube/player_parameters
           autoplay: 1,

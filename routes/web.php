@@ -11,6 +11,9 @@ Route::group(['middleware' => ['auth']], function() {
   Route::get('/comments', 'ChatController@index');
   Route::post('/comments', 'ChatController@create');
 
+  Route::get('changePassword', ['as' => 'changePassword', 'uses' => 'ChangePasswordController@showChangePasswordForm']);
+  Route::post('changePassword', ['as' => 'changePassword', 'uses' => 'ChangePasswordController@changePassword']);
+
   Route::get('/users/{user}','UserController@index')->name('users');
   Route::get('/users/{user}/follow','UserController@follow')->name('users.follow');
   Route::get('/users/{user}/unfollow','UserController@unfollow')->name('users.unfollow');
