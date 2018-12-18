@@ -67254,7 +67254,9 @@ var PlayVideo = function (_React$Component) {
       newLink: '',
       ableAddLink: 1,
       isMaster: false,
-      startTime: _this.props.startTime
+      startTime: _this.props.startTime,
+      voteNext: 0,
+      voted: false
     };
 
     _this.renderPlaylist = _this.renderPlaylist.bind(_this);
@@ -67262,7 +67264,9 @@ var PlayVideo = function (_React$Component) {
     _this.handleChangeLink = _this.handleChangeLink.bind(_this);
     _this.handleCLickButtonPermissions = _this.handleCLickButtonPermissions.bind(_this);
     _this.handleAddLink = _this.handleAddLink.bind(_this);
+    _this.handleVoteNext = _this.handleVoteNext.bind(_this);
     _this.renderButtonAddLink = _this.renderButtonAddLink.bind(_this);
+    _this.renderVoteNextButton = _this.renderVoteNextButton.bind(_this);
     _this._nextVideo = _this._nextVideo.bind(_this);
     _this.handlePlayNewVideo = _this.handlePlayNewVideo.bind(_this);
     _this.playNewVideo = _this.playNewVideo.bind(_this);
@@ -67322,17 +67326,23 @@ var PlayVideo = function (_React$Component) {
         newPlaylists.shift();
         _this4.setState({
           playlists: newPlaylists,
+          voted: false,
           startTime: 0
         });
       }).listen('AddLink', function (e) {
         var newPlaylists = e.playlists;
-        _this4.setState({ playlists: newPlaylists });
+        _this4.setState({ playlists: newPlaylists, startTime: 0 });
       }).listen('PlayNewVideo', function (e) {
         _this4.playNewVideo(e.id);
       }).listen('QueueNext', function (e) {
         _this4.queueNext(e.index);
       }).listen('DeleteVideo', function (e) {
         _this4.deleteVideo(e.index);
+      }).listen('VoteNext', function (e) {
+        var voteNext = e.vote_next;
+        _this4.setState({
+          voteNext: voteNext
+        });
       });
     }
   }, {
@@ -67524,17 +67534,55 @@ var PlayVideo = function (_React$Component) {
       }
     }
   }, {
-    key: '_nextVideo',
-    value: function _nextVideo() {
+    key: 'handleVoteNext',
+    value: function handleVoteNext() {
       var _this7 = this;
 
-      if (this.state.isMaster) {
-        axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
-          _this7.setState({
-            playlists: res.data.newPlaylists,
-            startTime: 0
-          });
+      axios.put('/channel/voteNext', { channel_name: this.props.name }).then(function (response) {
+        _this7.setState({
+          voteNext: response.data.voteNext,
+          voted: true
         });
+      });
+    }
+  }, {
+    key: 'renderVoteNextButton',
+    value: function renderVoteNextButton() {
+      if (this.state.isMaster) {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { className: 'btn btn-sm btn-default', id: 'next_video', title: 'Next', onClick: this._nextVideo },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-step-forward' }),
+          " (" + this.state.voteNext + ")"
+        );
+      } else if (!this.state.voted) {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { className: 'btn btn-sm btn-default', id: 'voteskip', title: 'Vote Next', onClick: this.handleVoteNext },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-step-forward' })
+        );
+      } else {
+        return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { className: 'btn btn-sm btn-default', id: 'voteskip', title: 'Vote Next', disabled: 'disabled' },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-step-forward' })
+        );
+      }
+    }
+  }, {
+    key: '_nextVideo',
+    value: function _nextVideo() {
+      var _this8 = this;
+
+      if (this.state.isMaster) {
+        if (this.state.playlists[1] != null) {
+          axios.put('/channel/removeFirstVideo', { channel_name: this.props.name }).then(function (res) {
+            _this8.setState({
+              playlists: res.data.newPlaylists,
+              startTime: 0
+            });
+          });
+        }
       }
     }
   }, {
@@ -67560,7 +67608,8 @@ var PlayVideo = function (_React$Component) {
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             'p',
             { id: 'videowrap-header', className: 'text-center' },
-            'Video\'s name'
+            this.state.playlists[0] != null ? this.state.playlists[0].snippet.title : "Video's name",
+            '}'
           ),
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_youtube__["a" /* default */], {
             videoId: id,
@@ -67601,11 +67650,7 @@ var PlayVideo = function (_React$Component) {
               { className: 'btn btn-sm btn-default', id: 'getplaylist', title: 'Retrieve playlist links' },
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-link' })
             ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'button',
-              { className: 'btn btn-sm btn-default', id: 'voteskip', title: 'Voteskip' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('span', { className: 'glyphicon glyphicon-step-forward' })
-            )
+            this.renderVoteNextButton()
           )
         ),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
