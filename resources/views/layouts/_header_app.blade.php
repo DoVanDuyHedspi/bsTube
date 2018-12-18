@@ -11,6 +11,7 @@
                                 <li>
                                     <a href="{{ route('my_channels')}}">My Channel</a>
                                     <a href="{{ route('users', Auth::user()->username)}}">Profile</a>
+                                    <a href="{{route('changePassword')}}">Change Password</a>
                                     <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
