@@ -38,6 +38,7 @@
             @yield('content')
         </main>
         @include('layouts._footer')
+        @yield('customjsson')
     </div>
 </body>
 </html>
