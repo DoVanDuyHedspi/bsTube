@@ -1,13 +1,41 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('content')
-<section id="mainpage" style="margin-top: 5%">
+<section id="mainpage">
     @if(session()->has('message'))
       <div class="alert alert-success">
           {{ session()->get('message') }}
       </div>
     @endif
     <div class="container">
+        <div class="col-lg-6 col-md-6">
+            <h3>Register a new channel</h3>
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <form action="{{ route('create_channel')}}" method="POST">
+                @csrf
+                <input type="hidden" name="" value="">
+                <input type="hidden" name="action" value="new_channel">
+                <div class="form-group">
+                    <label class="control-label" for="channelname">Channel URL</label>
+                    <div class="input-group"><span class="input-group-addon"  style="margin-right: 5px; padding-top: 8px">https://bstube.com/</span>
+                        <input class="form-control" style="background-color: rgb(26, 26, 26); color: white" id="channelname" type="text" name="name" maxlength="30" onkeyup="checkChannel()" placeholder="Channel ID">
+                    </div>
+                    <p class="text-danger pull-right" id="validate_channel"></p>
+                </div>
+                <button class="btn btn-primary btn-block" id="register" type="submit">Register</button>
+            </form>
+        </div>
+        <div class="col-lg-6 col-md-6" style="height: 40px">
+        </div>
         <div class="col-lg-6 col-md-6">
         <h3>My Channels</h3>
         <table class="table table-bordered">
@@ -20,46 +48,22 @@
             @foreach($my_channels as $channel)
               <tr>
                   <th>
-                    <a href="{{ url('/')}}" style="margin-left: 5px">{{$channel->name}}</a>
-                    <form class="delete" action="{{route('destroy_channel', $channel->name)}}" method="POST"
-                    onsubmit="return confirm('Are you sure you want to delete {{$channel->name}}?  This cannot be undone');">
-                        <input type="hidden" name="_method" value="DELETE">
-                        @csrf
-                        <button class="btn btn-sm btn-danger pull-right" type="submit">Delete <span class="glyphicon glyphicon-trash"></span>
-                        </button>
-                    </form>
+                      <form class="delete" action="{{route('destroy_channel', $channel->name)}}" method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete {{$channel->name}}?  This cannot be undone');">
+                          <input type="hidden" name="_method" value="DELETE">
+                          @csrf
+                          <button class="btn btn-sm btn-danger pull-right" type="submit">Delete <span class="glyphicon glyphicon-trash"></span>
+                          </button>
+                          <a href="{{ route('channels', $channel->name) }}" style="margin-left: 5px">{{$channel->name}}</a>
+                      </form>
+
                   </th>
               </tr>
             @endforeach
             </tbody>
         </table>
         </div>
-        <div class="col-lg-6 col-md-6">
-        <h3>Register a new channel</h3>
-        
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-        <form action="{{ route('create_channel')}}" method="POST">
-            @csrf
-            <input type="hidden" name="" value="">
-            <input type="hidden" name="action" value="new_channel">
-            <div class="form-group">
-            <label class="control-label" for="channelname">Channel URL</label>
-            <div class="input-group"><span class="input-group-addon">https://bstube.com</span>
-                <input class="form-control" id="channelname" type="text" name="name" maxlength="30" onkeyup="checkChannel()">
-            </div>
-            <p class="text-danger pull-right" id="validate_channel"></p>
-            </div>
-            <button class="btn btn-primary btn-block" id="register" type="submit">Register</button>
-        </form>
-        </div>
+
     </div>
 </section>
 <script type="text/javascript">

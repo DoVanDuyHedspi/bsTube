@@ -29,6 +29,10 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function chats() {
+        return $this->hasMany(Chat::class);
+    }
+
     public function channels() {
         return $this->hasMany('App\Channel', 'channel_master_id');
     }

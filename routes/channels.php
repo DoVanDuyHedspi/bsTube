@@ -18,3 +18,7 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 Broadcast::channel('new-post', function ($user) {
     return Auth::check();
 });
+
+Broadcast::channel('channel.{channelName}', function($user, $channelName) {
+    return ['id' => $user->id, 'username' => $user->username];
+});

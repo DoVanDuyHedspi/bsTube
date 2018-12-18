@@ -6,131 +6,194 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            body: '',
-            posts: [],
-            loading: false
+            content: '',
+            comments: [],
+            loading: false,
+            members: [],
+            numberOfMembers: 0
+
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.renderPosts = this.renderPosts.bind(this); 
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.renderComments = this.renderComments.bind(this); 
+        this.renderListMembers = this.renderListMembers.bind(this);
     }
 
-    getPosts() {
-        this.setState({loading:true});
-        axios.get('/posts').then((
+    getComments() {
+        this.setState({loading:true});    
+        axios.get('/comments', {params: {channel_name: this.props.name}}).then((
             response
-        ) => 
-            this.setState({
-                posts: [...response.data.posts],
-                loading: false
-            })
+        ) => {
+                this.setState({
+                    comments: [...response.data.comments],
+                    loading: false
+                });
+            }
+            
         );
     }
 
     componentWillMount() {
-        this.getPosts();
+        this.getComments();
+    }
+
+    removeMembersInList(array, element) {
+      const index = array.indexOf(element);
+      array.splice(index, 1);
     }
 
     componentDidMount() {
-        Echo.private('new-post').listen('PostCreated', (e) => {
-            console.log(window.Laravel.user.following.includes(e.post.user_id));
-            // this.setState({posts: [e.post,...this.state.posts]})
-            if (window.Laravel.user.following.includes(e.post.user_id)) {
-                this.setState({posts: [e.post,...this.state.posts]})
-            }
-        })
-        // this.interval = setInterval(()=>this.getPosts(), 10000)
+        Echo.join(`channel.${this.props.name}`)
+            .here((users) => {
+                axios
+                    .put('/channel/update_numbers_members', {
+                        numbersOfMembers: users.length,
+                        channel_name: this.props.name
+                    });
+                this.setState({
+                    members: [...users],
+                    numberOfMembers: users.length
+                });
+            })
+            .joining((user) => {
+              this.setState({
+                members: [...this.state.members,user],
+                numberOfMembers: this.state.numberOfMembers+1
+              });
+            })
+            .leaving((user) => {
+                axios
+                    .put('/channel/update_numbers_members', {
+                        numbersOfMembers: this.state.numberOfMembers-1,
+                        channel_name: this.props.name
+                    });
+                const listMembers = this.state.members;
+                this.removeMembersInList(listMembers,user);
+                this.setState({
+                  members: [...listMembers],
+                  numberOfMembers: this.state.numberOfMembers-1
+                });
+            })
+            .listen('CommentCreated', (e) => {
+                this.setState({comments: [...this.state.comments, e.comment]})
+            })
     }
 
     componentWillUnmount() {
-        // clearInterval(this.interval)
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        // this.postData();
         axios
-            .post('/posts', {
-                body: this.state.body
+            .post('/comments', {
+                content: this.state.content,
+                channel_name: this.props.name
             })
             .then(response => {
-                // console.log(response)
                 this.setState({
-                    posts: [...this.state.posts, response.data],
-                    body: ''
+                    comments: [...this.state.comments, response.data],
+                    content: ''                    
                 })
-            });
-        this.setState({
-            body: ''
+            });                                 
+        this.setState({                       
+            content: ''
         });
-        
+                                            
     }
 
     postData() {
-        axios.post('/posts', {
-            body: this.state.body
+        axios.post('/comments', {
+            content: this.state.content
         });
     }
-
+                                           
     handleChange(e) {
+        
         this.setState({
-            body: e.target.value
+            content: e.target.value
         })
     }
 
-    renderPosts() {
-        return this.state.posts.map(post => (
-            <div key={post.id} className="media">
-                <div className="media-left">
-                    <img src={post.user.avatar} className="media-object mr-2" />
-                </div>
-                <div className="media-body">
-                    <div className="user">
-                        <a href={`users/${post.user.username}`}>
-                            <b>{post.user.username}</b>
-                        </a>{' '}
-                        - {post.humanCreatedAt}
-                    </div>         
-                    <p>{post.body}</p>
-                </div>                                                          
+    handleKeyPress(e) {
+        if(e.key == 'Enter') {
+            this.handleSubmit(e)
+        }
+    }
+
+    renderComments() {
+        this.scroll();
+        return this.state.comments.map(comment => (
+            <div key={comment.id} className="media">
+                <div>
+                    <span style={{color: 'orange'}}>[{comment.humanCreatedAt}] </span><span style={{color: 'yellow'}}>{comment.user.username}</span> : <span style={{color: 'white'}}>{this.truncate(comment.content, 68)}</span>
+                </div>                                                           
             </div>))
         
     }
 
+    renderListMembers() {
+        return this.state.members.map(user => (
+          <div key={user.id} className="userlist_item userlist_afk">
+            <span className="glyphicon glyphicon-time" style={{marginRight: 5}}></span>
+            <span className="userlist_op">{user.username}</span>
+          </div>
+        ))
+    }
+
+    truncate(str, length, ending) {
+        if (length == null) {
+            length = 100;
+        }
+        if (ending == null) {
+            ending = '...';
+        }
+        if (str.length > length) {
+            return str.substring(0, length - ending.length) + ending;
+        } else {
+            return str;
+        }
+    };
+    scroll() {
+        $('#messagebuffer').bind("DOMSubtreeModified",function(){
+            var wtf = $('#messagebuffer');
+            var height = wtf[0].scrollHeight;
+            wtf.scrollTop(height);
+        });
+    }
     render() {
         return (
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-header">Tweet something...</div>
-
-                            <div className="card-body">
-                                <form onSubmit={this.handleSubmit}>
-                                    <div className="form-group">
-                                        <textarea
-                                            onChange={this.handleChange}
-                                            value={this.state.body}
-                                            className="form-control"
-                                            row="5"
-                                            maxLength="140"
-                                            placeholder="What up?"
-                                            required />
-                                    </div>
-                                    <input type="submit" value="Post" className="form-control"/>
-                                </form>
-                            </div>
-                        </div>
+            <div className="">
+                <div className="col-md-12" id="chatwrap">
+                    <div id="chatheader">
+                        <i className="glyphicon glyphicon-chevron-down pull-left pointer" id="userlisttoggle" title="Show/Hide Userlist"></i>
+                        <span className="pointer" id="usercount">{this.state.numberOfMembers} connected users</span>
                     </div>
-
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-header">Recent tweets</div>
-                            
-                            <div className="card-body">
-                            {!this.state.loading ? this.renderPosts() : 'Loading'}
+                    <div id="userlist" style={{height: 75 + 'vh'}}>
+                      {this.renderListMembers()}   
+                    </div>
+                    <div className="linewrap" id="messagebuffer" style={{height: 75 + 'vh'}}>
+                        <div className="server-msg-reconnect">Connected</div>
+                        {!this.state.loading ? this.renderComments() : 'Loading'}
+                    </div>
+                    <div className="input-group col-xs-12" id="guestlogin">
+                        {/* <span className="input-group-addon">Guest login</span> */}
+                        <form onSubmit={this.handleSubmit}>
+                            <div className="form-group">
+                                <input 
+                                    className="form-control" 
+                                    id="guestname" 
+                                    type="text" 
+                                    placeholder="What's up!"
+                                    onChange={this.handleChange}
+                                    onKeyPress={this.handleKeyPress} 
+                                    value={this.state.content}
+                                    maxLength="140" 
+                                    required   
+                                >
+                                </input>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
