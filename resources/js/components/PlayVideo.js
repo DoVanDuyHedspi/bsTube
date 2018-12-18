@@ -9,7 +9,9 @@ class PlayVideo extends React.Component {
       newLink: '',
       ableAddLink: 1,
       isMaster: false,
-      startTime: this.props.startTime
+      startTime: this.props.startTime,
+      voteNext: 0,
+      voted: false,
     };
 
     this.renderPlaylist = this.renderPlaylist.bind(this);
@@ -17,7 +19,9 @@ class PlayVideo extends React.Component {
     this.handleChangeLink = this.handleChangeLink.bind(this);
     this.handleCLickButtonPermissions = this.handleCLickButtonPermissions.bind(this);
     this.handleAddLink = this.handleAddLink.bind(this);
+    this.handleVoteNext = this.handleVoteNext.bind(this);
     this.renderButtonAddLink = this.renderButtonAddLink.bind(this);
+    this.renderVoteNextButton = this.renderVoteNextButton.bind(this);
     this._nextVideo = this._nextVideo.bind(this);
     this.handlePlayNewVideo = this.handlePlayNewVideo.bind(this);
     this.playNewVideo = this.playNewVideo.bind(this);
@@ -74,6 +78,7 @@ class PlayVideo extends React.Component {
           newPlaylists.shift();
           this.setState({
             playlists: newPlaylists,
+            voted: false,
             startTime: 0  
           });
         })
@@ -89,6 +94,12 @@ class PlayVideo extends React.Component {
         })
         .listen('DeleteVideo', (e) => {
           this.deleteVideo(e.index);
+        })
+        .listen('VoteNext', (e) => {
+          const voteNext = e.vote_next
+          this.setState({
+            voteNext: voteNext
+          });
         })
   }
 
@@ -234,17 +245,51 @@ class PlayVideo extends React.Component {
     }
   }
 
+  handleVoteNext() {
+    axios
+        .put('/channel/voteNext', {channel_name: this.props.name})
+        .then(response => {
+          this.setState({
+            voteNext: response.data.voteNext,
+            voted: true
+          });
+        })
+  }
 
+  renderVoteNextButton() {
+    if(this.state.isMaster) {
+      return (
+        <button className="btn btn-sm btn-default" id="next_video" title="Next" onClick={this._nextVideo}>
+          <span className="glyphicon glyphicon-step-forward"></span>
+          {" (" + this.state.voteNext + ")"}
+        </button>
+      )
+    } else if(!this.state.voted){
+      return(
+        <button className="btn btn-sm btn-default" id="voteskip" title="Vote Next" onClick={this.handleVoteNext}>
+          <span className="glyphicon glyphicon-step-forward"></span>
+        </button>
+      )
+    } else {
+      return(
+        <button className="btn btn-sm btn-default" id="voteskip" title="Vote Next" disabled="disabled">
+          <span className="glyphicon glyphicon-step-forward"></span>
+        </button>
+      )
+    }
+  }
 
   _nextVideo() {
     if(this.state.isMaster){
-      axios.put('/channel/removeFirstVideo', {channel_name: this.props.name})
-          .then(res => {
-            this.setState({
-              playlists: res.data.newPlaylists,
-              startTime: 0
-            });
-          })
+      if(this.state.playlists[1] != null){
+        axios.put('/channel/removeFirstVideo', {channel_name: this.props.name})
+            .then(res => {
+              this.setState({
+                playlists: res.data.newPlaylists,
+                startTime: 0
+              });
+            })
+      }
     }
   }
 
@@ -263,7 +308,7 @@ class PlayVideo extends React.Component {
     return (      
       <div id="controlsrow">
         <div id="videowrap">
-          <p id="videowrap-header" className="text-center">Video's name</p>
+          <p id="videowrap-header" className="text-center">{this.state.playlists[0] != null ? this.state.playlists[0].snippet.title : "Video's name"}}</p>
           <YouTube
             videoId={id}
             opts={opts}
@@ -285,8 +330,9 @@ class PlayVideo extends React.Component {
             </button>
             <button className="btn btn-sm btn-default" id="getplaylist" title="Retrieve playlist links"><span className="glyphicon glyphicon-link"></span>
             </button>
-            <button className="btn btn-sm btn-default" id="voteskip" title="Voteskip"><span className="glyphicon glyphicon-step-forward"></span>
-            </button>
+            
+            {this.renderVoteNextButton()}
+
           </div>
         </div>
         <div id="playlistrow">

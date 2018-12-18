@@ -12,6 +12,7 @@ use App\Events\AddLink;
 use App\Events\PlayNewVideo;
 use App\Events\QueueNext;
 use App\Events\DeleteVideo;
+use App\Events\VoteNext;
 use DateTime;
 
 class ChannelController extends Controller {
@@ -75,6 +76,7 @@ class ChannelController extends Controller {
         $videoIdRemoved = array_shift($playlists);
         $channel->link = $playlists;
         $channel->start_video_time = new DateTime();
+        $channel->vote_next = 0;
         // dd($channel->start_video_time);
         $channel->save();
         foreach($playlists as $stt => $videoId) {
@@ -119,6 +121,18 @@ class ChannelController extends Controller {
         broadcast(new AddLink($channel, $playlists))->toOthers();
         return response()->json([
             'newPlaylists' => $playlists
+        ]);
+    }
+
+    public function voteNext (Request $request) {
+        $channel = Channel::find($request->channel_name);
+        $channel->vote_next++;
+        $vote_next = $channel->vote_next;
+        $channel->save();
+
+        broadcast(new VoteNext($channel, $vote_next));
+        return response()->json([
+            'voteNext' => $vote_next
         ]);
     }
 
