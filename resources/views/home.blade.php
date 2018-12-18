@@ -46,3 +46,16 @@
       </div>
     </section>
 @endsection
+@section('customjsson')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#channelname").keyup(function (e) {
+                if (e.keyCode == 13) {
+                    var channel = $("#channelname").val();
+                    document.location.href = "/channels/" + channel;
+                }
+            })
+        })
+    </script>
+@endsection
